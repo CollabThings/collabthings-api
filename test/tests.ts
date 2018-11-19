@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2017  Juuso Vilmunen
+    Copyright (C) 2018  Juuso Vilmunen
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,22 +17,21 @@
 
 'use strict';
 
-var messages_arguments = {
-		setup: function() { console.log("messages setup"); },
-		init: function() { return new TestMessages(); }
-	};
+var assert = require('assert');
+import App from '../src/modules/app';
+import Api from '../src/modules/api';
+import CTSsb from '../src/modules/ssb';
+import BasicTests from './testbasic';
 
-messages_arguments.setup();
-module.exports = messages_arguments;
+var config = {};
 
-function TestMessages() {
-	this.getBasic = function() {	
-		var message = {};
-		message.content = "some content";
-		message.author = {};
-		message.author.username = "testingdude";
-		return message;
-	};
-}
-		
-		
+var app = new App();
+
+var basictests = new BasicTests(app);
+basictests.run();
+
+setTimeout(function () {
+    app.stop();
+}, 2000);
+
+console.log("END");

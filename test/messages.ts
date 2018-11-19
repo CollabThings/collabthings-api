@@ -17,36 +17,20 @@
 
 'use strict';
 
-var assert = require('assert');
-
-var basictests_arguments = {
-	setup: function () {
-		console.log("basictests setup");
-	},
-	init: function (api) {
-		return new BasicTests(api);
-	}
+var messages_arguments = {
+    setup: function() { console.log("messages setup"); },
+    init: function() { return new TestMessages(); }
 };
 
-var messages = require("./messages.js").init();
-
-basictests_arguments.setup();
-module.exports = basictests_arguments;
-
-var api, app;
-
-function BasicTests(napp) {
-	api = napp.getApi();
-	app = napp;
-
-
-	this.run = function () {
-		assert.equal("Hello!", api.info().hello);
-
-		var message = messages.getBasic();
-		message.content = "Important message";
-		message.reply = function (s) {
-			console.log("REPLY " + s);
-		};
-	}
+export class Message {
+    content: string = "default content";    
 }
+
+export class TestMessages {
+    getBasic(): Message {
+        var message = new Message();
+        message.content = "some content";
+        return message;
+    };
+}
+
