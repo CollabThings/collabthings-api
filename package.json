@@ -11,7 +11,7 @@
     "check-locales": "node scripts/check-locales.js",
     "postinstall": "npm run rebuild",
     "rebuild": "npm rebuild",
-    "build": "tsc",
+    "build": "tsc; cp *.json ./dist/",
     "buildtest": "tsc; npm run test"
   },
   "author": "Collabthings",
