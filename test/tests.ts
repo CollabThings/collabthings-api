@@ -18,9 +18,9 @@
 'use strict';
 
 var assert = require('assert');
-import App from '../src/modules/app';
-import Api from '../src/modules/api';
-import CTSsb from '../src/modules/ssb';
+import App from '../modules/app';
+import Api from '../modules/api';
+import CTSsb from '../modules/ssb';
 import BasicTests from './testbasic';
 
 var config = {};

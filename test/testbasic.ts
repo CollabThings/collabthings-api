@@ -18,10 +18,10 @@
 'use strict';
 
 var assert = require('assert');
-import App from '../src/modules/app';
-import Api from '../src/modules/api';
-import CTSsb from '../src/modules/ssb';
-import { MessageContent } from '../src/modules/common';
+import App from '../modules/app';
+import Api from '../modules/api';
+import CTSsb from '../modules/ssb';
+import { MessageContent } from '../modules/common';
 import { Message, TestMessages } from './messages';
 
 var messages = new TestMessages();
