@@ -1,5 +1,7 @@
 import * as pluralize from 'pluralize';
-import App from "./modules/app";
+import CTApp from "./modules/app";
+import CTApi from "./modules/api";
+import CTSsb from "./modules/ssb";
 
 
 /**
@@ -11,3 +13,4 @@ export function getPlural(str: any): string {
   return pluralize.plural(str)
 }
 
+export { CTApp, CTApi, CTSsb }

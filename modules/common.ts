@@ -8,3 +8,7 @@ export class MessageContent {
     constructor() {
     }
 }
+
+export class Info {
+    public hello: String = "hello";
+}

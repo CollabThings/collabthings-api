@@ -4,8 +4,8 @@
   "repository": "git@github.com:ssbc/patchwork.git",
   "version": "0.0.1",
   "description": "Collabthings service on top of Secure Scuttlebutt (SSB).",
-  "main": "dist/index",
-  "typings": "dist/index",
+  "main": "dist/index.js",
+  "types" : "dist/index.d.ts",
   "scripts": {
     "test": "node dist/test/tests.js",
     "check-locales": "node scripts/check-locales.js",

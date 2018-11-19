@@ -1,12 +1,10 @@
-"use strict";
-
 import express from 'express';
 import * as serveStatic from 'serve-static';
 import * as bodyParser from 'body-parser';
 import * as App from './app';
 import CTSsb from './ssb';
 import { Server } from 'net';
-import { MessageContent } from './common';
+import { MessageContent, Info } from './common';
 
 var PORT: number = 14881;
 
@@ -27,10 +25,6 @@ export default class Api {
     }
 
     info() {
-        class Info {
-            hello: String = "hello";
-        }
-
         var info = new Info();
         info.hello = "Hello!";
         return info;
