@@ -5,7 +5,7 @@
   "version": "0.0.1",
   "description": "Collabthings service on top of Secure Scuttlebutt (SSB).",
   "main": "dist/index.js",
-  "types" : "dist/index.d.ts",
+  "types": "dist/index.d.ts",
   "scripts": {
     "test": "node dist/test/tests.js",
     "check-locales": "node scripts/check-locales.js",
@@ -30,6 +30,7 @@
     "types": "^0.1.1"
   },
   "devDependencies": {
-    "@types/node": "^10.12.9"
+    "@types/node": "^10.12.9",
+    "typescript": "^3.1.6"
   }
 }
