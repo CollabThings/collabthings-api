@@ -12,7 +12,7 @@
     "postinstall": "npm run rebuild",
     "rebuild": "npm rebuild",
     "build": "tsc; cp *.json ./dist/",
-    "buildtest": "tsc; npm run test"
+    "buildtest": "npm install; tsc; npm run test"
   },
   "author": "Collabthings",
   "license": "AGPL-3.0",
