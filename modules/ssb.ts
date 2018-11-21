@@ -31,26 +31,7 @@ export default class CTSsb {
 			}
 			
             this.sbot = sbot;
-            
-            var content: common.MessageContent = new common.MessageContent();
-            content.text = "hello from a constuctor " + new Date();
-            this.addMessage(content, "hello", (err: string, msg: string) => {
-            	if(err) {
-                	console.log("message sent err:" + err);
-                	ready(err);
-                } else {
-                	setTimeout(() => {
-                    	ready(err);
-	                }, 2000);
-	            }
-            });
-
-	        pull(
-	            this.sbot.createFeedStream(),
-	            pull.collect(function(err: string, msgs: Object) {
-	                console.log(JSON.stringify(msgs));
-	            }));
-        });
+         });
         
     }
 
