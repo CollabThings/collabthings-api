@@ -5,6 +5,7 @@ import * as App from './app';
 import CTSsb from './ssb';
 import { Server } from 'net';
 import { MessageContent, Info } from './common';
+import ListsApi from './lists';
 
 var PORT: number = 14881;
 
@@ -12,18 +13,26 @@ export default class Api {
     ssb: CTSsb;
     exp: express.Application;
     expserver: Server;
+    lists: ListsApi;
 
-    constructor(nssb: CTSsb) {
+    setSsb(nssb: CTSsb) {
         this.ssb = nssb;
 
         this.exp = express();
         this.exp.use(bodyParser.json());
         this.initExp();
+
+        this.lists = new ListsApi(this);
+        this.lists.init(this.exp);
+
         this.expserver = this.exp.listen(PORT);
         console.log("Listening to port " + PORT);
-
     }
 
+    getLists(): ListsApi {
+        return this.lists;
+    }
+    
     info() {
         var info = new Info();
         info.hello = "Hello!";
@@ -31,12 +40,14 @@ export default class Api {
     }
 
 
-    addMessage(content: MessageContent, callback: Function) {
-        this.ssb.addMessage(content, callback);
+    addMessage(content: MessageContent, type: string, callback: Function) {
+        this.ssb.addMessage(content, type, callback);
     }
 
     stop() {
-        this.expserver.close();
+    	if(this.expserver) {
+        	this.expserver.close();
+        }
     }
 
     initExp() {
@@ -49,7 +60,7 @@ export default class Api {
         this.exp.post("/send", urlencodedParser, function(req, res) {
             console.log("\"info\" called " + JSON.stringify(req.body));
             var content: MessageContent = req.body;
-            self.addMessage(content, (err: string, msg: string, hash: string) => {
+            self.addMessage(content, content.module, (err: string, msg: string, hash: string) => {
                 console.log("message added " + JSON.stringify(msg));
                 res.send(JSON.stringify(msg));
             });

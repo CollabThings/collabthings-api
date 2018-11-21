@@ -1,6 +1,6 @@
 {
-  "name": "collabthings-api",
-  "productName": "CollabThings",
+  "name": "collabthings-testenv",
+  "productName": "CollabThings testenv",
   "repository": "git@github.com:ssbc/patchwork.git",
   "version": "0.0.1",
   "description": "Collabthings service on top of Secure Scuttlebutt (SSB).",
@@ -11,8 +11,8 @@
     "check-locales": "node scripts/check-locales.js",
     "postinstall": "npm run rebuild",
     "rebuild": "npm rebuild",
-    "build": "npm install; tsc; cp *.json ./dist/",
-    "buildtest": "bash buildtest.sh"
+    "build": "tsc; cp *.json ./dist/",
+    "buildtest": "tsc; npm run test"
   },
   "author": "Collabthings",
   "license": "AGPL-3.0",

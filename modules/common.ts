@@ -2,7 +2,8 @@
 
 
 export class MessageContent {
-    public type: string = "type";
+    public type: string = "defaulttype";
+    public module: string = "defaultmodule";
     public text: string = "text";
 
     constructor() {

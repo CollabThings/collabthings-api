@@ -2,18 +2,26 @@ import Api from './api';
 import CTSsb from './ssb';
 
 export default class App {
-  ssb: CTSsb = new CTSsb; 
-  api: Api = new Api(this.ssb);
+    ssb: CTSsb = new CTSsb();
+    api: Api = new Api();
 
-  getApi(): Api {           
-    return this.api;
- } 
+    constructor(ready: Function) {
+        this.ssb.init(() => {
+            this.api.setSsb(this.ssb);
+            ready();
+        });
+    }
 
-  getSsb(): CTSsb {    
-    return this.ssb;
-  }
+    getApi(): Api {
+        return this.api;
+    }
 
-  stop() {           
-     this.api.stop();
-  }
+    getSsb(): CTSsb {
+        return this.ssb;
+    }
+
+    stop() {
+        this.api.stop();
+		this.ssb.stop();
+    }
 }

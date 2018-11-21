@@ -22,16 +22,24 @@ import App from '../modules/app';
 import Api from '../modules/api';
 import CTSsb from '../modules/ssb';
 import BasicTests from './testbasic';
+import ListTests from './testlists';
 
 var config = {};
 
-var app = new App();
-
-var basictests = new BasicTests(app);
-basictests.run();
-
-setTimeout(function () {
-    app.stop();
-}, 2000);
-
-console.log("END");
+var app = new App((err: string) => {
+	if(err) {
+		console.log("ERROR " + err);
+	} else {
+		try {
+			console.log("TESTS: LAUNCHING BASIC");
+		    var basictests = new BasicTests(app);
+		    basictests.run();
+		
+			console.log("TESTS: LAUNCHING BOOKMARS");
+		    new ListTests(app).run();
+		} finally {	
+			app.stop();
+	    	console.log("END");
+	    }
+	}
+});

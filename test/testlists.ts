@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2018  Juuso Vilmunen
+    Copyright (C) 2017  Juuso Vilmunen
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -23,28 +23,25 @@ import Api from '../modules/api';
 import CTSsb from '../modules/ssb';
 import { MessageContent } from '../modules/common';
 import { Message, TestMessages } from './messages';
+import ListsApi from '../modules/lists';
 
 var messages = new TestMessages();
 
-export default class BasicTests {
+export default class ListTests {
     api: Api;
     app: App;
+    lists: ListsApi;
 
     constructor(napp: App) {
         this.app = napp;
         this.api = napp.getApi();
+        this.lists = this.api.getLists();
     }
 
     run() {
-        assert.equal("Hello!", this.api.info().hello);
-
         var message = messages.getBasic();
         message.content = "Important message";
-        var mc = new MessageContent();
-        
-        this.api.addMessage(mc, "test", (err: string, msg: string) => {
-        	assert.ifError(err);
-			console.log("test message added");
-        });
+
+        assert.equal("Hello!", this.api.info().hello);
     }
 }
