@@ -26,11 +26,10 @@ export default class CTSsb {
         ssbClient((err:string, sbot: any) => {
 			if(err) {
 		        console.log("error " + err);	
-		        ready(err);
-				return;
 			}
 			
             this.sbot = sbot;
+	        ready(err);
          });
         
     }
