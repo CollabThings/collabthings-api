@@ -1,5 +1,9 @@
 #!/bin/bash
 
+if [ ! -d node_modules ]; then
+	npm install
+fi
+
 if tsc; then 
 	cp *.json dist/
 	

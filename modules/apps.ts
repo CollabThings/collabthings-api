@@ -16,7 +16,12 @@ export default class Apps {
         this.list = {};
         
         var ctapp = new CTApp();
-        ctapp.name = "jee";
+        ctapp.name = "test";
+        ctapp.type = "default";
+        ctapp.settings = {
+        	settingstest: "ok?"
+        };
+        
         this.addApp(ctapp);
 
     }
@@ -34,4 +39,6 @@ export default class Apps {
 
 export class CTApp {
 	name: string;
+	type: string;
+	settings: any;
 }
