@@ -1,7 +1,7 @@
 {
   "party": true,
   "host": "127.0.0.1",
-  "port": 9SSB_PORT_INDEX,
+  "port": 10SSB_PORT_INDEX,
   "timeout": 0,
   "pub": true,
   "local": true,
@@ -11,7 +11,7 @@
   },
   "ws": {
 	"host": "127.0.0.1",
-    "port": 10SSB_PORT_INDEX
+    "port": 11SSB_PORT_INDEX
   },
   "gossip": {
     "connections": 3
@@ -28,7 +28,7 @@
       "net": [
         {
           "host": "127.0.0.1",
-          "port": 9SSB_PORT_INDEX,
+          "port": 10SSB_PORT_INDEX,
           "scope": "public",
           "transform": "shs"
         }
@@ -36,7 +36,7 @@
       "ws": [
         {
           "host": "127.0.0.1",
-          "port": 10SSB_PORT_INDEX,
+          "port": 11SSB_PORT_INDEX,
           "scope": "device",
           "transform": "shs"
         }
