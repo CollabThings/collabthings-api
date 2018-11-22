@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export PATH=./node_modules/.bin:$PATH
+
 if ! which sbot; then
 	npm install 
 fi
