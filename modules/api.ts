@@ -6,7 +6,7 @@ import CTSsb from './ssb';
 import CTApps from './apps';
 import { Server } from 'net';
 import { MessageContent, Info } from './common';
-import ListsApi from './lists';
+import { ListsApi } from './lists';
 
 var PORT: number = 14881;
 
@@ -24,7 +24,7 @@ export default class Api {
         this.exp.use(bodyParser.json());
         this.initExp();
 
-        this.lists = new ListsApi(this);
+        this.lists = new ListsApi(this.ssb);
         this.lists.init(this.exp);
 
 		this.apps = new CTApps(this);
@@ -47,8 +47,8 @@ export default class Api {
 		return this.apps.getList();
 	}
 
-    addMessage(content: MessageContent, type: string, callback: Function) {
-        this.ssb.addMessage(content, type, callback);
+    async addMessage(content: MessageContent, type: string, callback: Function) {
+        await this.ssb.addMessage(content, type);
     }
 
     stop() {

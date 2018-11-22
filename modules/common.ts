@@ -4,8 +4,9 @@
 export class MessageContent {
     public type: string = "defaulttype";
     public module: string = "defaultmodule";
-    public text: string = "text";
-
+    public text: string;
+    public values:any = {};
+	
     constructor() {
     }
 }

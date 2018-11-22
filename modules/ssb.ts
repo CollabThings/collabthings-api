@@ -33,20 +33,37 @@ export default class CTSsb {
          });
         
     }
+    
+    public createFeedStream(type: string, callback: Function) {
+		pull(
+		    this.sbot.messagesByType("collabthings-" + type),
+		    pull.collect(function(err: string, msgs: []) {
+		    	if(err) {
+		    		callback(err, "");
+		    	} else {
+					for(var i in msgs) {
+						var msg: string = JSON.stringify(msgs[i]);
+			        	console.log(msg);
+			        	callback(err, msg);
+			        }
+			    }
+		    }));
+    }
 
-    public addMessage(content: common.MessageContent, type: string, callback: Function): void {
+    public addMessage(content: common.MessageContent, type: string): Promise<string> {
         content.type = "collabthings-" + type;
 		content.module = type;
 
-        console.log("sending message " + JSON.stringify(content));
-        this.sbot.publish(JSON.parse(JSON.stringify(content)), function(err: string, msg: string) {
-        	if(err) {
-            	console.log("ERROR " + err)
-            } else {
-	            // the message as it appears in the database:
-	            console.log("Message published");
-			}
-            callback(err, msg);
+		return new Promise((resolve, reject) => {
+	        console.log("sending message " + JSON.stringify(content));
+	        this.sbot.publish(JSON.parse(JSON.stringify(content)), function(err: string, msg: string) {
+	        	if(err) {
+	            	console.log("ERROR " + err)
+					reject(err);
+	            } else {
+		            resolve(msg);
+				}
+	        });
         });
     }
 

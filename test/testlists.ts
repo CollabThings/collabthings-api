@@ -23,7 +23,7 @@ import Api from '../modules/api';
 import CTSsb from '../modules/ssb';
 import { MessageContent } from '../modules/common';
 import { Message, TestMessages } from './messages';
-import ListsApi from '../modules/lists';
+import { ListsApi, CTList } from '../modules/lists';
 
 var messages = new TestMessages();
 
@@ -39,9 +39,13 @@ export default class ListTests {
     }
 
     run() {
-        var message = messages.getBasic();
-        message.content = "Important message";
-
+		var list: string[] = this.lists.list("test");
+		if(!list) {
+			this.lists.add("test", "testvalue");
+		}
+		
+		assert.ifError(!list);
+				
         assert.equal("Hello!", this.api.info().hello);
     }
 }
