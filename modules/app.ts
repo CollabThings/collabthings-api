@@ -6,7 +6,9 @@ export default class App {
     api: Api = new Api();
 
     constructor(ready: Function) {
+       	console.log("Setting up CTApp");
         this.ssb.init(() => {
+        	console.log("CTSsb initialized");
             this.api.setSsb(this.ssb);
             ready();
         });

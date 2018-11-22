@@ -3,6 +3,7 @@ import * as serveStatic from 'serve-static';
 import * as bodyParser from 'body-parser';
 import * as App from './app';
 import CTSsb from './ssb';
+import CTApps from './apps';
 import { Server } from 'net';
 import { MessageContent, Info } from './common';
 import ListsApi from './lists';
@@ -14,7 +15,8 @@ export default class Api {
     exp: express.Application;
     expserver: Server;
     lists: ListsApi;
-
+	apps: CTApps;
+	
     setSsb(nssb: CTSsb) {
         this.ssb = nssb;
 
@@ -25,6 +27,8 @@ export default class Api {
         this.lists = new ListsApi(this);
         this.lists.init(this.exp);
 
+		this.apps = new CTApps(this);
+		
         this.expserver = this.exp.listen(PORT);
         console.log("Listening to port " + PORT);
     }
@@ -39,6 +43,9 @@ export default class Api {
         return info;
     }
 
+	appsList() {
+		return this.apps.getList();
+	}
 
     addMessage(content: MessageContent, type: string, callback: Function) {
         this.ssb.addMessage(content, type, callback);
@@ -64,6 +71,10 @@ export default class Api {
                 console.log("message added " + JSON.stringify(msg));
                 res.send(JSON.stringify(msg));
             });
+        });
+
+        this.exp.get("/apps", function(req, res) {
+            res.send(JSON.stringify(self.appsList()));
         });
 
         this.exp.get("/info", function(req, res) {
