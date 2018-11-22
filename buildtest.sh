@@ -1,9 +1,5 @@
 #!/bin/bash
 
-if ! which tsc; then
-	npm install typescript
-fi
-
 if [ ! -d node_modules ]; then
 	npm install
 fi
