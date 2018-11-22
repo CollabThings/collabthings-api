@@ -11,8 +11,8 @@ sed -e "s~SSB_HOME~$(pwd)/${number}~g" -i ${ssbpath}/config
 
 netstat -naop | grep LISTEN | grep node
 
-echo NETSTAT "netstat -naop | grep LISTEN | grep 9${number} | tr -s ' ' | cut -d' ' -f7 | cut -d'/' -f1"
-ns=$(netstat -naop | grep LISTEN | grep "9${number}" | tr -s ' ' | cut -d' ' -f7 | cut -d'/' -f1)
+echo NETSTAT "netstat -naop | grep LISTEN | grep 10${number} | tr -s ' ' | cut -d' ' -f7 | cut -d'/' -f1"
+ns=$(netstat -naop | grep LISTEN | grep "10${number}" | tr -s ' ' | cut -d' ' -f7 | cut -d'/' -f1)
 if [ ! -z "${ns}" ]; then
 	echo Killing $ns
 	kill ${ns}
@@ -39,3 +39,4 @@ sbot messagesByType "collabthings"
 #sbot
 
 echo "HOME=$home ssb_appname=ssb-test sbot"
+
