@@ -21,6 +21,7 @@
     "@types/node": "^10.12.10",
     "@types/pluralize": "0.0.29",
     "express": "^4.16.4",
+    "pluralize": "^7.0.0",
     "pull-stream": "^3.6.9",
     "scuttlebot": "^13.1.0",
     "serve-static": "^1.13.2",
