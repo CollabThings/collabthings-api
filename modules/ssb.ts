@@ -2,9 +2,6 @@ import * as common from './common';
 const pull = require('pull-stream');
 import * as fs from 'fs';
 import * as path from 'path'
-const ssbkeys = require('ssb-keys');
-const ssbfeed = require('ssb-feed');
-const SSB = require('ssb-db/create');
 var ssbClient = require('ssb-client')
 
 export default class CTSsb {
