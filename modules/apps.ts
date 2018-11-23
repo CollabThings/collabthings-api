@@ -7,15 +7,15 @@ import express from 'express';
 import * as common from './common';
 import CTApi from './api';
 
-export default class CTApps {
+export class CTApps {
     api: CTApi;
-	list: { [key: string]: CTApp };
+	list: { [key: string]: CTAppInfo };
 	
     constructor(napi: CTApi) {
         this.api = napi;
         this.list = {};
         
-        var ctapp = new CTApp();
+        var ctapp = new CTAppInfo();
         ctapp.name = "test";
         ctapp.type = "default";
         ctapp.settings = {
@@ -26,7 +26,7 @@ export default class CTApps {
 
     }
 
-	addApp(app: CTApp) {
+	addApp(app: CTAppInfo) {
 		this.list[app.name] = app;
 	}
 	
@@ -37,7 +37,7 @@ export default class CTApps {
     stop() { }
 }
 
-export class CTApp {
+export class CTAppInfo {
 	name: string;
 	type: string;
 	settings: any;

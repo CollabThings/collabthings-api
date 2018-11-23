@@ -3,14 +3,14 @@ import * as serveStatic from 'serve-static';
 import * as bodyParser from 'body-parser';
 import * as CTApp from './app';
 import CTSsb from './ssb';
-import CTApps from './apps';
+import { CTApps, CTAppInfo } from './apps';
 import { Server } from 'net';
 import { CTMessageContent, CTInfo } from './common';
 import { ListsApi } from './lists';
 
 var PORT: number = 14881;
 
-export default class CTApi {
+class CTApi {
     ssb: CTSsb;
     exp: express.Application;
     expserver: Server;
@@ -43,6 +43,10 @@ export default class CTApi {
         return info;
     }
 
+    addApp(appinfo: CTAppInfo) {
+    	this.apps.addApp(appinfo);
+    }
+    
 	appsList() {
 		return this.apps.getList();
 	}
@@ -83,3 +87,6 @@ export default class CTApi {
         });
     }
 }
+
+export default CTApi;
+
