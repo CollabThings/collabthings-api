@@ -38,13 +38,15 @@ export default class ListTests {
         this.lists = this.api.getLists();
     }
 
-    run() {
+    async run() {
 		var list: string[] = this.lists.list("test");
-		if(!list) {
-			this.lists.add("test", "testvalue");
+		if(list.length==0) {
+			console.log("list length " + list.length);
+			await this.lists.add("test", "testvalue");
+			list = this.lists.list("test");
 		}
 		
-		assert.ifError(!list);
+		assert.equal(true, list.length>0);
 				
         assert.equal("Hello!", this.api.info().hello);
     }

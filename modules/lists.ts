@@ -37,14 +37,19 @@ export class ListsApi {
     		var values: any = msg.value.content.values;
     		if(values && values.method && values.value && values.listname) {
     			console.log("list msg:" + JSON.stringify(values));
-    			var list: CTList = this.getList(values.listname);
-    			if(!list) {
-    				list = this.createList(values.listname);
-    			}
     			
+    			var list: CTList = this.getOrCreateList(values.listname);    			
     			list.add(values.value);
     		}
     	});
+    }
+    
+    private getOrCreateList(name: string): CTList {
+    	if(typeof(this.lists[name]) == 'undefined') {
+    		this.createList(name);
+    	}
+		
+		return this.getList(name);
     }
     
     async add(name: string, value: string) {
@@ -56,14 +61,14 @@ export class ListsApi {
     	content.values.listname = name;
     	
     	await this.ssb.addMessage(content, "list");
+    	
+    	this.getOrCreateList(name).add(value);
+    	
+    	console.log("value added");
     }
     
     list(name: string): string[] {
-    	if(this.getList(name)) {
-    		return this.getList(name).values;
-    	} else {
-    		return [];
-    	}
+    	return this.getOrCreateList(name).values;
     }
     
     private getList(name: string): CTList {
@@ -71,6 +76,7 @@ export class ListsApi {
     }
     
     private createList(name: string): CTList {
+    	console.log("Creating a new list " + name);
     	var list: CTList = new CTList();
     	this.lists[name] = list;
     	return list;
