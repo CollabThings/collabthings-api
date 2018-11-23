@@ -1,9 +1,9 @@
-import Api from './api';
+import CTApi from './api';
 import CTSsb from './ssb';
 
-export default class App {
+export default class CTApp {
     ssb: CTSsb = new CTSsb();
-    api: Api = new Api();
+    api: CTApi = new CTApi();
 
     constructor(ready: Function) {
        	console.log("Setting up CTApp");
@@ -14,7 +14,7 @@ export default class App {
         });
     }
 
-    getApi(): Api {
+    getApi(): CTApi {
         return this.api;
     }
 

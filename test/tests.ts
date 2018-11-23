@@ -18,15 +18,15 @@
 'use strict';
 
 var assert = require('assert');
-import App from '../modules/app';
-import Api from '../modules/api';
+import CTApp from '../modules/app';
+import CTApi from '../modules/api';
 import CTSsb from '../modules/ssb';
 import BasicTests from './testbasic';
 import ListTests from './testlists';
 
 var config = {};
 
-var app = new App((err: string) => {
+var app = new CTApp((err: string) => {
 	if(err) {
 		console.log("ERROR " + err);
 	} else {

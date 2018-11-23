@@ -18,21 +18,21 @@
 'use strict';
 
 var assert = require('assert');
-import App from '../modules/app';
-import Api from '../modules/api';
+import CTApp from '../modules/app';
+import CTApi from '../modules/api';
 import CTSsb from '../modules/ssb';
-import { MessageContent } from '../modules/common';
+import { CTMessageContent } from '../modules/common';
 import { Message, TestMessages } from './messages';
 import { ListsApi, CTList } from '../modules/lists';
 
 var messages = new TestMessages();
 
 export default class ListTests {
-    api: Api;
-    app: App;
+    api: CTApi;
+    app: CTApp;
     lists: ListsApi;
 
-    constructor(napp: App) {
+    constructor(napp: CTApp) {
         this.app = napp;
         this.api = napp.getApi();
         this.lists = this.api.getLists();

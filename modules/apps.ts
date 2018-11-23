@@ -5,13 +5,13 @@ import * as path from 'path'
 import express from 'express';
 
 import * as common from './common';
-import Api from './api';
+import CTApi from './api';
 
-export default class Apps {
-    api: Api;
+export default class CTApps {
+    api: CTApi;
 	list: { [key: string]: CTApp };
 	
-    constructor(napi: Api) {
+    constructor(napi: CTApi) {
         this.api = napi;
         this.list = {};
         

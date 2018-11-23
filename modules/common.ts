@@ -1,7 +1,7 @@
 "use strict";
 
 
-export class MessageContent {
+export class CTMessageContent {
     public type: string = "defaulttype";
     public module: string = "defaultmodule";
     public text: string;
@@ -11,6 +11,6 @@ export class MessageContent {
     }
 }
 
-export class Info {
+export class CTInfo {
     public hello: String = "hello";
 }

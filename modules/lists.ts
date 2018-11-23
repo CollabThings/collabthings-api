@@ -49,7 +49,7 @@ export class ListsApi {
     
     async add(name: string, value: string) {
     	console.log("adding to list " + name + " value " + value);
-    	var content: common.MessageContent = new common.MessageContent();
+    	var content: common.CTMessageContent = new common.CTMessageContent();
     	content.values.method = "add";
     	content.values.addedAt = "" + new Date();
     	content.values.value = value;
@@ -81,7 +81,7 @@ export class ListsApi {
 	    	console.log("Creating a new list " + name);
 	    	var list: CTList = this.createList(name);
 	    	
-	    	var content: common.MessageContent = new common.MessageContent();
+	    	var content: common.CTMessageContent = new common.CTMessageContent();
 	    	content.values.method = "init";
 	    	content.values.addedAt = "" + new Date();
 	    	content.values.listname = name;

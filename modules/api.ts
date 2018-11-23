@@ -1,16 +1,16 @@
 import express from 'express';
 import * as serveStatic from 'serve-static';
 import * as bodyParser from 'body-parser';
-import * as App from './app';
+import * as CTApp from './app';
 import CTSsb from './ssb';
 import CTApps from './apps';
 import { Server } from 'net';
-import { MessageContent, Info } from './common';
+import { CTMessageContent, CTInfo } from './common';
 import { ListsApi } from './lists';
 
 var PORT: number = 14881;
 
-export default class Api {
+export default class CTApi {
     ssb: CTSsb;
     exp: express.Application;
     expserver: Server;
@@ -38,7 +38,7 @@ export default class Api {
     }
     
     info() {
-        var info = new Info();
+        var info = new CTInfo();
         info.hello = "Hello!";
         return info;
     }
@@ -47,7 +47,7 @@ export default class Api {
 		return this.apps.getList();
 	}
 
-    async addMessage(content: MessageContent, type: string, callback: Function) {
+    async addMessage(content: CTMessageContent, type: string, callback: Function) {
         await this.ssb.addMessage(content, type);
     }
 
@@ -58,7 +58,7 @@ export default class Api {
     }
 
     initExp() {
-        var self: Api = this;
+        var self: CTApi = this;
 
         var urlencodedParser = bodyParser.urlencoded({
             extended: false
@@ -66,7 +66,7 @@ export default class Api {
 
         this.exp.post("/send", urlencodedParser, function(req, res) {
             console.log("\"info\" called " + JSON.stringify(req.body));
-            var content: MessageContent = req.body;
+            var content: CTMessageContent = req.body;
             self.addMessage(content, content.module, (err: string, msg: string, hash: string) => {
                 console.log("message added " + JSON.stringify(msg));
                 res.send(JSON.stringify(msg));

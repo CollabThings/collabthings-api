@@ -22,16 +22,14 @@ export default class CTSsb {
     }
 
     init(ready: Function) {
-    
         ssbClient((err:string, sbot: any) => {
 			if(err) {
-		        console.log("error " + err);	
+		        console.log(err);
 			}
 			
             this.sbot = sbot;
 	        ready(err);
-         });
-        
+         });    
     }
     
     public createFeedStream(type: string, callback: Function) {
@@ -50,7 +48,7 @@ export default class CTSsb {
 		    }));
     }
 
-    public addMessage(content: common.MessageContent, type: string): Promise<string> {
+    public addMessage(content: common.CTMessageContent, type: string): Promise<string> {
         content.type = "collabthings-" + type;
 		content.module = type;
 
