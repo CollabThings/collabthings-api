@@ -1,6 +1,6 @@
 {
   "name": "collabthings-api",
-  "productName": "CollabThings",
+  "productName": "CollabThings API",
   "repository": "git@github.com:CollabThings/collabthings-api.git",
   "version": "0.0.1",
   "description": "Collabthings service on top of Secure Scuttlebutt (SSB).",
@@ -14,7 +14,7 @@
     "build": "npm install; tsc",
     "buildtest": "bash buildtest.sh"
   },
-  "author": "Collabthings",
+  "author": "Juuso Vilmunen <juuso@vilmunen.net> (juuso.vilmunen.net)",
   "license": "AGPL-3.0",
   "dependencies": {
     "@types/express": "^4.16.0",
