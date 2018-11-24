@@ -1,17 +1,17 @@
 {
   "name": "collabthings-api",
   "productName": "CollabThings",
-  "repository": "git@github.com:ssbc/patchwork.git",
+  "repository": "git@github.com:CollabThings/collabthings-api.git",
   "version": "0.0.1",
   "description": "Collabthings service on top of Secure Scuttlebutt (SSB).",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "index.js",
+  "types": "index.d.ts",
   "scripts": {
-    "test": "node dist/test/tests.js",
+    "test": "node test/tests.js",
     "check-locales": "node scripts/check-locales.js",
     "postinstall": "npm run rebuild",
     "rebuild": "npm rebuild",
-    "build": "npm install; tsc; cp *.json ./dist/",
+    "build": "npm install; tsc",
     "buildtest": "bash buildtest.sh"
   },
   "author": "Collabthings",

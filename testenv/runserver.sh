@@ -1,7 +1,7 @@
 #!/bin/bash
 
 number=$1
-home=$(pwd)/${number}
+home=$(dirname $0)/${number}
 ssbpath=$home/.ssb-test/
 
 mkdir -p $ssbpath
