@@ -1,0 +1,64 @@
+{
+  "party": true,
+  "host": "127.0.0.1",
+  "port": 10SSB_PORT_INDEX,
+  "timeout": 0,
+  "pub": true,
+  "local": true,
+  "friends": {
+    "dunbar": 150,
+    "hops": 3
+  },
+  "ws": {
+	"host": "127.0.0.1",
+    "port": 11SSB_PORT_INDEX
+  },
+  "gossip": {
+    "connections": 3
+  },
+  "connections": {
+    "outgoing": {
+      "net": [
+        {
+          "transform": "shs"
+        }
+      ]
+    },
+    "incoming": {
+      "net": [
+        {
+          "host": "127.0.0.1",
+          "port": 10SSB_PORT_INDEX,
+          "scope": "public",
+          "transform": "shs"
+        }
+      ],
+      "ws": [
+        {
+          "host": "127.0.0.1",
+          "port": 11SSB_PORT_INDEX,
+          "scope": "device",
+          "transform": "shs"
+        }
+      ]
+    }
+  },
+  "path": "SSB_HOME/.ssb-test",
+  "timers": {
+    "connection": 0,
+    "reconnect": 5000,
+    "ping": 300000,
+    "handshake": 5000
+  },
+  "caps": {
+    "shs": "1KHLiKZvAvjbY1ziZEHMXawbCEIM6qwjCDm3VYRan/s=",
+    "sign": "1KHLiKZvAvjbY1ziZEHMXawbCEIM6qwjCDm3VYRan/s="
+  },
+  "master": [],
+  "logging": {
+    "level": "notice"
+  },
+  "_": [
+    "server"
+  ]
+}

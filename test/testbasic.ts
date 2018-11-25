@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2017  Juuso Vilmunen
+    Copyright (C) 2018  Juuso Vilmunen
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -18,19 +18,19 @@
 'use strict';
 
 var assert = require('assert');
-import App from '../modules/app';
-import Api from '../modules/api';
+import CTApp from '../modules/app';
+import CTApi from '../modules/api';
 import CTSsb from '../modules/ssb';
-import { MessageContent } from '../modules/common';
+import { CTMessageContent } from '../modules/common';
 import { Message, TestMessages } from './messages';
 
 var messages = new TestMessages();
 
 export default class BasicTests {
-    api: Api;
-    app: App;
+    api: CTApi;
+    app: CTApp;
 
-    constructor(napp: App) {
+    constructor(napp: CTApp) {
         this.app = napp;
         this.api = napp.getApi();
     }
@@ -40,5 +40,11 @@ export default class BasicTests {
 
         var message = messages.getBasic();
         message.content = "Important message";
+        var mc = new CTMessageContent();
+        
+        this.api.addMessage(mc, "test", (err: string, msg: string) => {
+        	assert.ifError(err);
+			console.log("test message added");
+        });
     }
 }

@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2018  Juuso Vilmunen
+    Copyright (C) 2017  Juuso Vilmunen
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -21,25 +21,33 @@ var assert = require('assert');
 import CTApp from '../modules/app';
 import CTApi from '../modules/api';
 import CTSsb from '../modules/ssb';
-import BasicTests from './testbasic';
-import ListTests from './testlists';
+import { CTMessageContent } from '../modules/common';
+import { Message, TestMessages } from './messages';
+import { ListsApi, CTList } from '../modules/lists';
 
-var config = {};
+var messages = new TestMessages();
 
-var app = new CTApp((err: string) => {
-	if(err) {
-		console.log("ERROR " + err);
-	} else {
-		try {
-			console.log("TESTS: LAUNCHING BASIC");
-		    var basictests = new BasicTests(app);
-		    basictests.run();
+export default class ListTests {
+    api: CTApi;
+    app: CTApp;
+    lists: ListsApi;
+
+    constructor(napp: CTApp) {
+        this.app = napp;
+        this.api = napp.getApi();
+        this.lists = this.api.getLists();
+    }
+
+    async run() {
+		var list: string[] = this.lists.list("test");
+		if(list.length==0) {
+			console.log("list length " + list.length);
+			await this.lists.add("test", "testvalue");
+			list = this.lists.list("test");
+		}
 		
-			console.log("TESTS: LAUNCHING BOOKMARS");
-		    new ListTests(app).run();
-		} finally {	
-			app.stop();
-	    	console.log("END");
-	    }
-	}
-});
+		assert.equal(true, list.length>0);
+				
+        assert.equal("Hello!", this.api.info().hello);
+    }
+}

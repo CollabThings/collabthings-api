@@ -1,14 +1,16 @@
 "use strict";
 
 
-export class MessageContent {
-    public type: string = "type";
-    public text: string = "text";
-
+export class CTMessageContent {
+    public type: string = "defaulttype";
+    public module: string = "defaultmodule";
+    public text: string;
+    public values:any = {};
+	
     constructor() {
     }
 }
 
-export class Info {
+export class CTInfo {
     public hello: String = "hello";
 }

@@ -62,4 +62,8 @@ typings/
 /.project
 
 **/*~
-/dist/
+**/*.js
+**/*.d.ts
+**/.ssb-test
+testenv/00*
+

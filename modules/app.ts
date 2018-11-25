@@ -1,19 +1,29 @@
-import Api from './api';
+import CTApi from './api';
 import CTSsb from './ssb';
 
-export default class App {
-  ssb: CTSsb = new CTSsb; 
-  api: Api = new Api(this.ssb);
+export default class CTApp {
+    ssb: CTSsb = new CTSsb();
+    api: CTApi = new CTApi();
 
-  getApi(): Api {           
-    return this.api;
- } 
+    constructor(ready: Function) {
+       	console.log("Setting up CTApp");
+        this.ssb.init(() => {
+        	console.log("CTSsb initialized");
+            this.api.setSsb(this.ssb);
+            ready();
+        });
+    }
 
-  getSsb(): CTSsb {    
-    return this.ssb;
-  }
+    getApi(): CTApi {
+        return this.api;
+    }
 
-  stop() {           
-     this.api.stop();
-  }
+    getSsb(): CTSsb {
+        return this.ssb;
+    }
+
+    stop() {
+        this.api.stop();
+		this.ssb.stop();
+    }
 }

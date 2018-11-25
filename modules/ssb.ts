@@ -2,51 +2,67 @@ import * as common from './common';
 const pull = require('pull-stream');
 import * as fs from 'fs';
 import * as path from 'path'
-const ssbkeys = require('ssb-keys');
-const ssbfeed = require('ssb-feed');
-const SSB = require('ssb-db/create');
+var ssbClient = require('ssb-client')
 
 export default class CTSsb {
-    pathToDB: string;
-    pathToSecret: string;
-
-    keys: JSON;
-
-    ssb: any;
-    feed: any;
+    home: string;
+    appname: string;
+    ssbpath: string;
     
+    sbot: any;
+
     constructor() {
-        this.pathToDB = '../db'
-        this.pathToSecret = '../ssb-identity'
-
-        try {
-            fs.mkdirSync(path.resolve(this.pathToDB));
-        } catch (e) { }
-
-        this.keys = ssbkeys.loadOrCreateSync(this.pathToSecret)
-
-        this.ssb = SSB(this.pathToDB)
-        this.feed = this.ssb.createFeed(this.keys)
-
-        // stream all messages for all keypairs.
-        pull(
-            this.ssb.createFeedStream(),
-            pull.collect(function(err: string, ary: Object) {
-                console.log(JSON.stringify(ary));
-            }));
+        this.home = process.env.HOME || "tmp";
+        this.appname = process.env.ssb_appname || "ssb"
+        this.ssbpath = this.home + "/." + this.appname;
+        console.log("home: " + this.home + " ssb_appname:" + this.appname + " ssbpath:" + this.ssbpath);
     }
 
-    public addMessage(content: common.MessageContent, callback: Function): void {
-        content.type = "post";
-        this.feed.add(JSON.stringify(content), function(err: string, msg: string, hash: string) {
-            // the message as it appears in the database:
-            console.log(msg)
-            // and its hash:
-            console.log(hash)
+    init(ready: Function) {
+        ssbClient((err:string, sbot: any) => {
+			if(err) {
+		        console.log(err);
+			}
+			
+            this.sbot = sbot;
+	        ready(err);
+         });    
+    }
+    
+    public createFeedStream(type: string, callback: Function) {
+		pull(
+		    this.sbot.messagesByType("collabthings-" + type),
+		    pull.collect(function(err: string, msgs: []) {
+		    	if(err) {
+		    		callback(err, "");
+		    	} else {
+					for(var i in msgs) {
+						var msg: string = JSON.stringify(msgs[i]);
+			        	console.log(msg);
+			        	callback(err, msg);
+			        }
+			    }
+		    }));
+    }
 
-            callback(err, msg, hash);
+    public addMessage(content: common.CTMessageContent, type: string): Promise<string> {
+        content.type = "collabthings-" + type;
+		content.module = type;
+
+		return new Promise((resolve, reject) => {
+	        console.log("sending message " + JSON.stringify(content));
+	        this.sbot.publish(JSON.parse(JSON.stringify(content)), function(err: string, msg: string) {
+	        	if(err) {
+	            	console.log("ERROR " + err)
+					reject(err);
+	            } else {
+		            resolve(msg);
+				}
+	        });
         });
     }
 
-    stop() { }
+    stop() { 
+    	this.sbot.close();
+    }
 }
