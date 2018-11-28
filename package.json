@@ -2,7 +2,7 @@
   "name": "collabthings-api",
   "productName": "CollabThings API",
   "repository": "git@github.com:CollabThings/collabthings-api.git",
-  "version": "0.0.1",
+  "version": "0.0.2-SNAPSHOT",
   "description": "Collabthings service on top of Secure Scuttlebutt (SSB).",
   "main": "index.js",
   "types": "index.d.ts",
