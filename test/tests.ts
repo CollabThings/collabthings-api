@@ -31,6 +31,9 @@ var app = new CTApp((err: string) => {
 		console.log("ERROR " + err);
 	} else {
 		try {
+		
+			app.getApi().start();
+			
 			console.log("TESTS: LAUNCHING BASIC");
 		    var basictests = new BasicTests(app);
 		    basictests.run();

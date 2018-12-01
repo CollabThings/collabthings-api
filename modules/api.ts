@@ -1,4 +1,5 @@
 import express from 'express';
+import path from 'path';
 import * as serveStatic from 'serve-static';
 import * as bodyParser from 'body-parser';
 import * as CTApp from './app';
@@ -17,18 +18,16 @@ class CTApi {
     lists: ListsApi;
 	apps: CTApps;
 	
-    setSsb(nssb: CTSsb) {
+    init(nssb: CTSsb) {
         this.ssb = nssb;
-
+		this.apps = new CTApps(this);
+        this.lists = new ListsApi(this.ssb);
+    }
+    
+    start() {
         this.exp = express();
-        this.exp.use(bodyParser.json());
         this.initExp();
 
-        this.lists = new ListsApi(this.ssb);
-        this.lists.init(this.exp);
-
-		this.apps = new CTApps(this);
-		
         this.expserver = this.exp.listen(PORT);
         console.log("Listening to port " + PORT);
     }
@@ -67,6 +66,22 @@ class CTApi {
         var urlencodedParser = bodyParser.urlencoded({
             extended: false
         });
+        
+        var staticdir: string = path.join(__dirname, '../static');
+        console.log("Serve static in " + staticdir);
+        
+        this.exp.use("/static", express.static(staticdir, {
+        	setHeaders: function(res, path) {
+        		console.log("request " + path);
+        		if (path.indexOf("download") !== -1) {
+        			res.attachment(path)
+        		}
+        	},
+		}));
+
+        this.apps.initStatic(this.exp);
+
+        this.exp.use(bodyParser.json());
 
         this.exp.post("/send", urlencodedParser, function(req, res) {
             console.log("\"info\" called " + JSON.stringify(req.body));
@@ -85,6 +100,8 @@ class CTApi {
             console.log("\"info\" called");
             res.send(JSON.stringify(self.info()));
         });
+
+        this.apps.initApi(this.exp);
     }
 }
 

@@ -23,7 +23,20 @@ export class CTApps {
         };
         
         this.addApp(ctapp);
+    }
+    
+    async initStatic(exp: express.Application) {
+    	for(var iapp in this.list) {
+    		var app = this.list[iapp];
+    		console.log("initStatic " + iapp + " " + app);
+    		if(app.static) {
+    			app.static(exp);
+    		}
+    	}
+    }
 
+    async initApi(exp: express.Application) {
+    	
     }
 
 	addApp(app: CTAppInfo) {
@@ -41,4 +54,6 @@ export class CTAppInfo {
 	name: string;
 	type: string;
 	settings: any;
+	static: Function;
+	api: Function;	
 }

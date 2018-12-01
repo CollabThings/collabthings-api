@@ -5,7 +5,7 @@ if [ ! -d node_modules ]; then
 fi
 
 if tsc; then 
-	cp *.json dist/
+	#cp *.json dist/
 	
 	export ssb_appname=ssb-test
 	export HOME=$(pwd)/testenv/001 

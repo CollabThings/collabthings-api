@@ -9,7 +9,7 @@ export default class CTApp {
        	console.log("Setting up CTApp");
         this.ssb.init(() => {
         	console.log("CTSsb initialized");
-            this.api.setSsb(this.ssb);
+            this.api.init(this.ssb);
             ready();
         });
     }
