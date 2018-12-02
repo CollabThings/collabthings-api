@@ -36,7 +36,13 @@ export class CTApps {
     }
 
     async initApi(exp: express.Application) {
-    	
+    	for(var iapp in this.list) {
+    		var app = this.list[iapp];
+    		console.log("initApi " + iapp + " " + app);
+    		if(app.api) {
+    			app.api(exp);
+    		}
+    	}
     }
 
 	addApp(app: CTAppInfo) {

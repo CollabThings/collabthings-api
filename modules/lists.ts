@@ -6,6 +6,7 @@ import express from 'express';
 
 import * as common from './common';
 import CTSsb from './ssb';
+import { CTApps, CTAppInfo } from './apps';
 
 export class CTList {
 	values: string[];
@@ -31,7 +32,26 @@ export class ListsApi {
         this.lists = {};
     }
 
-    async init(exp: express.Application) {
+    getAppInfo(): CTAppInfo {
+    	var self = this;
+    	var info: CTAppInfo = new CTAppInfo();
+    	
+    	info.name = "lists";
+    	info.api = (exp: express.Application) => {
+    		exp.get("/lists", function(req, res) {
+    			var bookmarks = self.list("info")
+    			if(bookmarks.length==0) {
+    				self.add("info", "created at " + new Date());
+    			}
+    			
+    			res.send(JSON.stringify(self.lists));
+    		});
+    	};
+    	
+    	return info;
+    }
+    
+    async init() {
     	await this.ssb.createFeedStream("list", (err: string, smsg: string) => {
     		var msg: any = JSON.parse(smsg);
     		var values: any = msg.value.content.values;

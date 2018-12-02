@@ -22,6 +22,8 @@ class CTApi {
         this.ssb = nssb;
 		this.apps = new CTApps(this);
         this.lists = new ListsApi(this.ssb);
+        this.addApp(this.lists.getAppInfo());
+        this.lists.init();
     }
     
     start() {
