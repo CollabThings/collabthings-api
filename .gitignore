@@ -67,3 +67,4 @@ typings/
 **/.ssb-test
 testenv/00*
 
+/package-lock.json
