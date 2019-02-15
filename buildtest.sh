@@ -8,6 +8,7 @@ fi
 
 if tsc; then 
 	#cp *.json dist/
+	tsc
 	
 	export ssb_appname=ssb-test
 	export HOME=$(pwd)/testenv/001 
