@@ -8,6 +8,7 @@ import { CTApps, CTAppInfo } from './apps';
 import { Server } from 'net';
 import { CTMessageContent, CTInfo } from './common';
 import { ListsApi } from './lists';
+import { UserInfoApi } from './userinfo';
 
 var PORT: number = 14881;
 
@@ -16,6 +17,8 @@ class CTApi {
     exp: express.Application;
     expserver: Server;
     lists: ListsApi;
+    userinfo: UserInfoApi;
+    
 	apps: CTApps;
 	
     init(nssb: CTSsb) {
@@ -24,6 +27,10 @@ class CTApi {
         this.lists = new ListsApi(this.ssb);
         this.addApp(this.lists.getAppInfo());
         this.lists.init();
+
+        this.userinfo = new UserInfoApi(this.ssb);
+        this.addApp(this.userinfo.getAppInfo());
+        this.userinfo.init();
     }
     
     start() {

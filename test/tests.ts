@@ -35,9 +35,9 @@ async function runtests() {
 		
 		console.log("TESTS: LAUNCHING BASIC");
 	    var basictests = new BasicTests(app);
-	    basictests.run();
+	    await basictests.run();
 	
-		console.log("TESTS: LAUNCHING BOOKMARS");
+		console.log("TESTS: LAUNCHING LISTS");
 	    await new ListTests(app).run();
 	} finally {	
 		app.stop();

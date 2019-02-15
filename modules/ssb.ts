@@ -60,9 +60,10 @@ export default class CTSsb {
 	        console.log("sending message " + JSON.stringify(content));
 	        this.sbot.publish(JSON.parse(JSON.stringify(content)), function(err: string, msg: string) {
 	        	if(err) {
-	            	console.log("ERROR " + err)
+	            	console.log("ERROR " + err);
 					reject(err);
 	            } else {
+	            	console.log("messageAdded " + msg);
 		            resolve(msg);
 				}
 	        });

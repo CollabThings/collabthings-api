@@ -24,6 +24,8 @@ import CTSsb from '../modules/ssb';
 import { CTMessageContent } from '../modules/common';
 import { Message, TestMessages } from './messages';
 
+const request = require('request-promise');
+
 var messages = new TestMessages();
 
 export default class BasicTests {
@@ -35,16 +37,27 @@ export default class BasicTests {
         this.api = napp.getApi();
     }
 
-    run() {
+    async run() {
         assert.equal("Hello!", this.api.info().hello);
-
+        var self = this;
+        
         var message = messages.getBasic();
         message.content = "Important message";
         var mc = new CTMessageContent();
         
-        this.api.addMessage(mc, "test", (err: string, msg: string) => {
+        console.log("basictest addMessage");
+        await this.api.addMessage(mc, "test", (err: string, msg: string) => {
         	assert.ifError(err);
 			console.log("test message added");
         });
+        
+        console.log("basictest get userinfo");
+        await request.get("http://localhost:14881/self", function(err:any, response:any, body:any) {
+        	assert.ifError(err);
+        	console.log("basictest userinfo response " + body);
+        	var userinfo = JSON.parse(body);
+        	assert.equal(self.app.getSsb().getUserID(), userinfo.userid);
+        });
+        
     }
 }
