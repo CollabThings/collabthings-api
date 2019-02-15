@@ -26,23 +26,27 @@ import ListTests from './testlists';
 
 var config = {};
 
-var app = new CTApp((err: string) => {
-	if(err) {
-		console.log("ERROR " + err);
-	} else {
-		try {
+async function runtests() {
+	console.log("ASYNC");
+	
+	var app = await new CTApp().init();
+	try {
+		app.getApi().start();
 		
-			app.getApi().start();
-			
-			console.log("TESTS: LAUNCHING BASIC");
-		    var basictests = new BasicTests(app);
-		    basictests.run();
-		
-			console.log("TESTS: LAUNCHING BOOKMARS");
-		    new ListTests(app).run();
-		} finally {	
-			app.stop();
-	    	console.log("END");
-	    }
+		console.log("TESTS: LAUNCHING BASIC");
+	    var basictests = new BasicTests(app);
+	    basictests.run();
+	
+		console.log("TESTS: LAUNCHING BOOKMARS");
+	    new ListTests(app).run();
+	} finally {	
+		app.stop();
+		console.log("END");
 	}
-});
+
+	console.log("ASYNC END");
+}
+
+runtests();
+
+console.log("TESTS END");

@@ -5,13 +5,16 @@ export default class CTApp {
     ssb: CTSsb = new CTSsb();
     api: CTApi = new CTApi();
 
-    constructor(ready: Function) {
+    async init(): Promise<CTApp> {
+    	var self = this;
        	console.log("Setting up CTApp");
-        this.ssb.init(() => {
-        	console.log("CTSsb initialized");
-            this.api.init(this.ssb);
-            ready();
-        });
+        await this.ssb.init();
+
+    	return new Promise<CTApp>((resolve, reject) => {
+	        console.log("CTSsb initialized");
+	        this.api.init(this.ssb);
+	        resolve(self);
+	    });
     }
 
     getApi(): CTApi {

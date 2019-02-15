@@ -3,6 +3,7 @@ const pull = require('pull-stream');
 import * as fs from 'fs';
 import * as path from 'path'
 var ssbClient = require('ssb-client')
+var ssbKeys = require('ssb-keys')
 
 export default class CTSsb {
     home: string;
@@ -13,20 +14,26 @@ export default class CTSsb {
 
     constructor() {
         this.home = process.env.HOME || "tmp";
-        this.appname = process.env.ssb_appname || "ssb"
+        this.appname = process.env.ssb_appname || "ssb-collabthings"
         this.ssbpath = this.home + "/." + this.appname;
         console.log("home: " + this.home + " ssb_appname:" + this.appname + " ssbpath:" + this.ssbpath);
     }
 
-    init(ready: Function) {
-        ssbClient((err:string, sbot: any) => {
-			if(err) {
-		        console.log(err);
-			}
-			
-            this.sbot = sbot;
-	        ready(err);
-         });    
+    async init(): Promise<String> {
+    	var keys = ssbKeys.loadOrCreateSync(this.home + "/." + this.appname + "/secret")
+    
+    	return new Promise<String>((resolve, reject) => {
+	        ssbClient(keys, (err:string, sbot: any) => {
+				if(err) {
+			        console.log("Collabthings ssbClient " + err);   
+			        reject(err);
+				}
+				
+	            this.sbot = sbot;
+	            console.log("sbot client create " + sbot);
+		        resolve(err);
+	         });
+	     });
     }
     
     public createFeedStream(type: string, callback: Function) {
