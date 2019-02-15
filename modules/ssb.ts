@@ -30,7 +30,7 @@ export default class CTSsb {
 				}
 				
 	            this.sbot = sbot;
-	            console.log("sbot client create " + sbot);
+	            console.log("sbot client create " + JSON.stringify(sbot));
 		        resolve(err);
 	         });
 	     });
@@ -69,6 +69,10 @@ export default class CTSsb {
         });
     }
 
+    public getUserID(): string {
+    	return this.sbot.id
+    }
+    
     stop() { 
     	this.sbot.close();
     }

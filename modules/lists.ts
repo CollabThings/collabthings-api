@@ -16,17 +16,21 @@ export class CTList {
 	}
 	
 	add(value: string) {
-		if(!this.values.includes(value)) {
+		if(!this.includes(value)) {
 			this.values.push(value);
 			console.log("list now \"" + this.values + "\"");
 		}
+	}
+
+	includes(value: string) {
+		return this.values.includes(value);
 	}
 }
 
 export class ListsApi {
 	ssb: CTSsb;
-	lists: { [key: string]: CTList };
-	
+	lists: { [key: string] : { [key: string]: CTList } };
+
     constructor(nssb: CTSsb) {
         this.ssb = nssb;
         this.lists = {};
@@ -67,7 +71,7 @@ export class ListsApi {
     }
     
     private getOrCreateList(name: string): CTList {
-    	if(typeof(this.lists[name]) == 'undefined') {
+    	if(typeof(this.getOwnLists()[name]) == 'undefined') {
     		this.createList(name);
     	}
 		
@@ -82,18 +86,22 @@ export class ListsApi {
     	console.log("*************** LISTS ADD *****************")
     	await this.waitIfEmpty(name);
     	
-    	console.log("adding to list " + name + " value " + value);
-    	var content: common.CTMessageContent = new common.CTMessageContent();
-    	content.values.method = "add";
-    	content.values.addedAt = "" + new Date();
-    	content.values.value = value;
-    	content.values.listname = name;
-    	
-    	await this.ssb.addMessage(content, "list");
-    	
-    	this.getOrCreateList(name).add(value);
-    	
-    	console.log("value added");
+    	if(typeof(this.getOwnLists()[name]) == 'undefined' || !this.getOwnLists()[name].includes(value)) {
+	    	console.log("adding to list " + name + " value " + value);
+	    	var content: common.CTMessageContent = new common.CTMessageContent();
+	    	content.values.method = "add";
+	    	content.values.addedAt = "" + new Date();
+	    	content.values.value = value;
+	    	content.values.listname = name;
+	    	
+	    	await this.ssb.addMessage(content, "list");
+	    	
+	    	this.getOrCreateList(name).add(value);
+	    	
+	    	console.log("value added");
+	    } else {
+	    	console.log("value already there");
+	    }
     }
     
     async waitIfEmpty(name: string ) {
@@ -114,16 +122,26 @@ export class ListsApi {
     }
     
     private getList(name: string): CTList {
-    	return this.lists[name];
+    	return this.getOwnLists()[name];
     }
     
     private createList(name: string): CTList {
     	console.log("Creating a new list " + name);
     	var list: CTList = new CTList();
-    	this.lists[name] = list;
+    	this.getOwnLists()[name] = list;
     	return list;
     }
 
+    private getOwnLists(): {[key: string]: CTList} {
+    	var l = this.lists[this.ssb.getUserID()];
+    	if (l == null) {
+    		l = {};
+    		this.lists[this.ssb.getUserID()] = l;
+    	}
+    	
+    	return l;
+    }
+    
     private async newList(name: string): Promise<CTList> {
     	return new Promise<CTList>((resolve, reject) => {
 	    	console.log("Creating a new list " + name);
