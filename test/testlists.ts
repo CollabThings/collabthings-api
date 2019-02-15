@@ -39,12 +39,16 @@ export default class ListTests {
     }
 
     async run() {
+    	await this.lists.waitIfEmpty("test");
+    	
 		var list: string[] = this.lists.list("test");
 		if(list.length==0) {
 			console.log("list length " + list.length);
 			await this.lists.add("test", "testvalue");
 			list = this.lists.list("test");
 		}
+
+		await this.lists.add("test2", "testvalue2");
 		
 		assert.equal(true, list.length>0);
 				

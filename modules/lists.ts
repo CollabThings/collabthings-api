@@ -52,8 +52,10 @@ export class ListsApi {
     }
     
     async init() {
+    	console.log("******************** LISTS INIT");
     	await this.ssb.createFeedStream("list", (err: string, smsg: string) => {
     		var msg: any = JSON.parse(smsg);
+    		
     		var values: any = msg.value.content.values;
     		if(values && values.method && values.value && values.listname) {
     			console.log("list msg:" + JSON.stringify(values));
@@ -72,7 +74,14 @@ export class ListsApi {
 		return this.getList(name);
     }
     
+    async delay(ms: number) {
+    	return new Promise( resolve => setTimeout(resolve, ms) );
+    }
+
     async add(name: string, value: string) {
+    	console.log("*************** LISTS ADD *****************")
+    	await this.waitIfEmpty(name);
+    	
     	console.log("adding to list " + name + " value " + value);
     	var content: common.CTMessageContent = new common.CTMessageContent();
     	content.values.method = "add";
@@ -85,6 +94,19 @@ export class ListsApi {
     	this.getOrCreateList(name).add(value);
     	
     	console.log("value added");
+    }
+    
+    async waitIfEmpty(name: string ) {
+    	var counter: number = 0;
+        while(counter++ < 10 && (this.isEmpty() || this.list(name).length==0)) {
+    		// TODO this is stupid but I'm not sure how this should be done.
+    		console.log("lists empty!");
+    		await this.delay(200);
+    	}
+    }
+    
+    private isEmpty(): Boolean {
+    	return Object.keys(this.lists).length == 0;
     }
     
     list(name: string): string[] {

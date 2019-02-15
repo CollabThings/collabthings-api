@@ -38,7 +38,7 @@ async function runtests() {
 	    basictests.run();
 	
 		console.log("TESTS: LAUNCHING BOOKMARS");
-	    new ListTests(app).run();
+	    await new ListTests(app).run();
 	} finally {	
 		app.stop();
 		console.log("END");
