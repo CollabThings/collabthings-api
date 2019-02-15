@@ -22,7 +22,7 @@ export class UserInfoApi {
     	info.name = "userinfo";
     	
     	info.api = (exp: express.Application) => {
-    		exp.get("/" + info.name + "/launch", function(req, res) {
+    		exp.get("/" + info.name, function(req, res) {
     			res.send(JSON.stringify(self.getInfo()));
     		});
     		
