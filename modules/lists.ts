@@ -60,22 +60,37 @@ export class ListsApi {
     	await this.ssb.createFeedStream("list", (err: string, smsg: string) => {
     		var msg: any = JSON.parse(smsg);
     		
+    		if(!msg.value.content) {
+    			console.log("no content");
+    			return;
+    		}
+    		
     		var values: any = msg.value.content.values;
     		if(values && values.method && values.value && values.listname) {
     			console.log("list msg:" + JSON.stringify(values));
-    			
-    			var list: CTList = this.getOrCreateList(values.listname);    			
+    			var author = msg.value.author;
+    			console.log("list msg by " + author);
+    			var list: CTList = this.getOrCreateListWithAuthor(author, values.listname);    			
     			list.add(values.value);
     		}
     	});
     }
     
     private getOrCreateList(name: string): CTList {
-    	if(typeof(this.getOwnLists()[name]) == 'undefined') {
-    		this.createList(name);
+    	var author = this.ssb.getUserID();
+    	return this.getOrCreateListWithAuthor(author, name);
+    }
+    
+    private getOrCreateListWithAuthor(author: string, name: string) {
+    	if(typeof(this.lists[author]) == 'undefined') {
+    		this.lists[author] = {};
+    	}
+
+    	if(typeof(this.lists[author][name]) == 'undefined') {
+    		this.lists[author][name] = new CTList();
     	}
 		
-		return this.getList(name);
+		return this.getList(author, name);
     }
     
     async delay(ms: number) {
@@ -83,10 +98,14 @@ export class ListsApi {
     }
 
     async add(name: string, value: string) {
+    	await this.addWithAuthor(this.ssb.getUserID(), name, value);
+    }
+    
+    async addWithAuthor(author: string, name: string, value: string) {
     	console.log("*************** LISTS ADD *****************")
-    	await this.waitIfEmpty(name);
+    	await this.waitIfEmptyWithAuthor(author, name);
     	
-    	if(typeof(this.getOwnLists()[name]) == 'undefined' || !this.getOwnLists()[name].includes(value)) {
+    	if(typeof(this.getAuthorLists(author)[name]) == 'undefined' || !this.getAuthorLists(author)[name].includes(value)) {
 	    	console.log("adding to list " + name + " value " + value);
 	    	var content: common.CTMessageContent = new common.CTMessageContent();
 	    	content.values.method = "add";
@@ -96,7 +115,7 @@ export class ListsApi {
 	    	
 	    	await this.ssb.addMessage(content, "list");
 	    	
-	    	this.getOrCreateList(name).add(value);
+	    	this.getOrCreateListWithAuthor(author, name).add(value);
 	    	
 	    	console.log("value added");
 	    } else {
@@ -105,8 +124,12 @@ export class ListsApi {
     }
     
     async waitIfEmpty(name: string ) {
+    	await this.waitIfEmptyWithAuthor(this.ssb.getUserID(), name);
+    }
+    
+    async waitIfEmptyWithAuthor(author: string, name: string) {
     	var counter: number = 0;
-        while(counter++ < 10 && (this.isEmpty() || this.list(name).length==0)) {
+        while(counter++ < 10 && (this.isEmpty() || this.listWithAuthor(author, name).length==0)) {
     		// TODO this is stupid but I'm not sure how this should be done.
     		console.log("lists empty!");
     		await this.delay(200);
@@ -120,23 +143,31 @@ export class ListsApi {
     list(name: string): string[] {
     	return this.getOrCreateList(name).values;
     }
+
+    listWithAuthor(author: string, name: string): string[] {
+    	return this.getOrCreateListWithAuthor(author, name).values;
+    }
     
-    private getList(name: string): CTList {
-    	return this.getOwnLists()[name];
+    private getList(author: string, name: string): CTList {
+    	return this.getAuthorLists(author)[name];
     }
     
     private createList(name: string): CTList {
+    	return this.createListWithAuthor(this.ssb.getUserID(), name);
+    }
+    
+    private createListWithAuthor(author: string, name: string): CTList {
     	console.log("Creating a new list " + name);
     	var list: CTList = new CTList();
-    	this.getOwnLists()[name] = list;
+    	this.getAuthorLists(author)[name] = list;
     	return list;
     }
 
-    private getOwnLists(): {[key: string]: CTList} {
-    	var l = this.lists[this.ssb.getUserID()];
+    private getAuthorLists(author: string): {[key: string]: CTList} {
+    	var l = this.lists[author];
     	if (l == null) {
     		l = {};
-    		this.lists[this.ssb.getUserID()] = l;
+    		this.lists[author] = l;
     	}
     	
     	return l;
