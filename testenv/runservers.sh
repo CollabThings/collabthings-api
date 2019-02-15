@@ -3,7 +3,7 @@
 export PATH=./node_modules/.bin:$PATH
 
 if ! which sbot; then
-	npm install 
+	npm install
 fi
 
 bash runserver.sh "001" 

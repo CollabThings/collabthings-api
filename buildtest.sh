@@ -1,5 +1,7 @@
 #!/bin/bash
 
+echo COLLABTHINGS-API BUILD
+
 if [ ! -d node_modules ]; then
 	npm install
 fi
