@@ -37,8 +37,17 @@ class CTApi {
         this.exp = express();
         this.initExp();
 
-        this.expserver = this.exp.listen(PORT);
-        console.log("Listening to port " + PORT);
+        var port:number;
+        
+        console.log("CT_API_PORT " + process.env.CT_API_PORT);
+        if(process.env.CT_API_PORT) {
+        	port = +process.env.CT_API_PORT;
+        } else {
+        	port = PORT;
+        }
+        
+        this.expserver = this.exp.listen(port);
+        console.log("Listening to port " + port);
     }
 
     getLists(): ListsApi {
