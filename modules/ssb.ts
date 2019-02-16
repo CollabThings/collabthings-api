@@ -36,20 +36,24 @@ export default class CTSsb {
 	     });
     }
     
-    public createFeedStream(type: string, callback: Function) {
+    public getMessagesByType(type: string, callback: Function) {
 		pull(
-		    this.sbot.messagesByType("collabthings-" + type),
+		    this.sbot.messagesByType(type),
 		    pull.collect(function(err: string, msgs: []) {
 		    	if(err) {
 		    		callback(err, "");
 		    	} else {
 					for(var i in msgs) {
 						var msg: string = JSON.stringify(msgs[i]);
-			        	console.log(msg);
+			        	//console.log(msg);
 			        	callback(err, msg);
 			        }
 			    }
 		    }));
+    }
+    
+    public createFeedStream(type: string, callback: Function) {
+    	this.getMessagesByType("collabthings-" + type, callback);
     }
 
     public addMessage(content: common.CTMessageContent, type: string): Promise<string> {

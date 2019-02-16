@@ -52,7 +52,7 @@ export default class BasicTests {
         });
         
         console.log("basictest get users");
-        await request.get("http://localhost:14881/self", function(err:any, response:any, body:any) {
+        await request.get("http://localhost:14881/me", function(err:any, response:any, body:any) {
         	assert.ifError(err);
         	console.log("basictest users response " + body);
         	var users = JSON.parse(body);

@@ -10,7 +10,8 @@ import { CTApps, CTAppInfo } from './apps';
 
 export class UsersApi {
 	ssb: CTSsb;
-
+	users: { [key: string] : User } = {};
+	
     constructor(nssb: CTSsb) {
         this.ssb = nssb;
     }
@@ -23,10 +24,17 @@ export class UsersApi {
     	
     	info.api = (exp: express.Application) => {
     		exp.get("/" + info.name, function(req, res) {
-    			res.send(JSON.stringify(self.getInfo()));
+    			if(Object.keys(self.users).length == 0) {
+    				console.log("Users list empty. Responding later.");
+    				setTimeout(() => {
+    					res.send(JSON.stringify(self.getFollowing()));    				
+    				}, 2000);
+    			} else {
+    				res.send(JSON.stringify(self.getFollowing()));
+    			}
     		});
     		
-    		exp.get("/self", function(req, res) {
+    		exp.get("/me", function(req, res) {
     			res.send(JSON.stringify(self.getInfo()));
     		});
     	};
@@ -42,7 +50,96 @@ export class UsersApi {
 		return selfinfo;  	
     }
     
+    getFollowing(): any[] {	
+    	var list: any[] = [];
+    	
+		var count:number = 0;
+		for(var i in this.users) {
+			var key = i;
+			var user:User = this.users[key];
+			if(user.following) {
+				console.log("adding user " + JSON.stringify(user));
+				list[count++] = user;
+			}
+		}
+    	
+    	return list;
+    }
+    
     async init() {
+       	await this.initContacts();
+       	await this.initAbout();
+    }
+
+    async initContacts() {
+       	await this.ssb.getMessagesByType("contact", (err: string, smsg: string) => {
+    		var msg: any = JSON.parse(smsg);
+    		
+    		if(!msg.value.content) {
+    			console.log("no content");
+    			return;
+    		}
+
+    		var content: any = msg.value.content;
+    		if(content) {
+    			var author = msg.value.author;
+    			this.handleContact(author, content);
+    		}
+    	});
+    }
+    
+    async initAbout() {
+    	await this.ssb.getMessagesByType("about", (err: string, smsg: string) => {
+    		var msg: any = JSON.parse(smsg);
+    		
+    		if(!msg.value.content) {
+    			console.log("no content");
+    			return;
+    		}
+
+    		var content: any = msg.value.content;
+    		if(content) {
+    			console.log("about msg:" + JSON.stringify(content));
+    			var author = msg.value.author;
+    			console.log("about msg by " + author);
+    			this.handleAbout(author, content);
+    		}
+    	});
+    }
+    
+    public checkAuthor(author:string) {
+    	if(typeof(this.users[author]) == 'undefined') {
+    		console.log("adding user " + author);
+    		var user:User = new User();
+    		this.users[author] = user;
+    		user.userid = author;
+    	} 
+    }
+ 
+    public getUser(author:string): User {
+		this.checkAuthor(author);
+		return this.users[author];
+    }
+    
+    handleContact(author:string, content: any) {
+		if(author == this.ssb.getUserID()) {
+			console.log("contact msg:" + JSON.stringify(content));
+			this.getUser(content.contact).following = true;			
+		}
+    }
+    
+    handleAbout(author:string, content: any) {
+    	var user:User =  this.getUser(author);
+    	
+    	if(content.name) {
+    		user.name = content.name;
+    	}
+    	
+    	if(content.description) {
+    		user.description = content.description;
+    	}
+    	
+    	console.log("About handled. user now " + JSON.stringify(user));
     }
     
     async delay(ms: number) {
@@ -52,3 +149,9 @@ export class UsersApi {
     stop() { }
 }
 
+class User {
+	userid: string;
+	name: string;
+	description: string;
+	following: boolean;
+}
