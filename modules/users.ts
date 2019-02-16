@@ -8,7 +8,7 @@ import * as common from './common';
 import CTSsb from './ssb';
 import { CTApps, CTAppInfo } from './apps';
 
-export class UserInfoApi {
+export class UsersApi {
 	ssb: CTSsb;
 
     constructor(nssb: CTSsb) {
@@ -19,7 +19,7 @@ export class UserInfoApi {
     	var self = this;
     	var info: CTAppInfo = new CTAppInfo();
     	
-    	info.name = "userinfo";
+    	info.name = "users";
     	
     	info.api = (exp: express.Application) => {
     		exp.get("/" + info.name, function(req, res) {

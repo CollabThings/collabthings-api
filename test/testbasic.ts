@@ -51,12 +51,12 @@ export default class BasicTests {
 			console.log("test message added");
         });
         
-        console.log("basictest get userinfo");
+        console.log("basictest get users");
         await request.get("http://localhost:14881/self", function(err:any, response:any, body:any) {
         	assert.ifError(err);
-        	console.log("basictest userinfo response " + body);
-        	var userinfo = JSON.parse(body);
-        	assert.equal(self.app.getSsb().getUserID(), userinfo.userid);
+        	console.log("basictest users response " + body);
+        	var users = JSON.parse(body);
+        	assert.equal(self.app.getSsb().getUserID(), users.userid);
         });
         
     }
