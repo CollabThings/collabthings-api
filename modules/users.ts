@@ -33,6 +33,10 @@ export class UsersApi {
     				res.send(JSON.stringify(self.getFollowing()));
     			}
     		});
+
+    		exp.get("/user/:userid", function(req, res) {
+    			res.send(JSON.stringify(self.getUser(req.params.userid)));
+    		});
     		
     		exp.get("/me", function(req, res) {
     			res.send(JSON.stringify(self.getInfo()));
@@ -107,7 +111,10 @@ export class UsersApi {
     }
     
     public checkAuthor(author:string) {
-    	if(typeof(this.users[author]) == 'undefined') {
+    	// typical ssb ID?
+    	if(author.length<20 || !author.startsWith("@") || author.indexOf("/")<0 || author.indexOf("=.ed")<10) {
+    		console.log("user id not accepted " + author);
+    	} else if(typeof(this.users[author]) == 'undefined') {
     		console.log("adding user " + author);
     		var user:User = new User();
     		this.users[author] = user;
