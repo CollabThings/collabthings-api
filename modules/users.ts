@@ -58,7 +58,6 @@ export class UsersApi {
 			var key = i;
 			var user:User = this.users[key];
 			if(user.following) {
-				console.log("adding user " + JSON.stringify(user));
 				list[count++] = user;
 			}
 		}
@@ -124,7 +123,13 @@ export class UsersApi {
     handleContact(author:string, content: any) {
 		if(author == this.ssb.getUserID()) {
 			console.log("contact msg:" + JSON.stringify(content));
-			this.getUser(content.contact).following = true;			
+			if(content.following == true) {
+				this.getUser(content.contact).following = true;
+			} else if(content.following == false) {
+				this.getUser(content.contact).following = false;
+			} else {
+				console.log("unknown following value");
+			}
 		}
     }
     
