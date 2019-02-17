@@ -4,6 +4,8 @@ import * as fs from 'fs';
 import * as path from 'path'
 var ssbClient = require('ssb-client')
 var ssbKeys = require('ssb-keys')
+var Server = require('ssb-server')
+var Config = require('ssb-config/inject')
 
 export default class CTSsb {
     home: string;
@@ -12,16 +14,42 @@ export default class CTSsb {
     
     sbot: any;
 
+	config: any;
+	runserver: boolean = false;
+	
     constructor() {
         this.home = process.env.HOME || "tmp";
         this.appname = process.env.ssb_appname || "ssb-collabthings"
         this.ssbpath = this.home + "/." + this.appname;
         console.log("home: " + this.home + " ssb_appname:" + this.appname + " ssbpath:" + this.ssbpath);
+
+	//
+        var settings: any = { 
+        		host: "localhost", 
+        		port: 9999, 
+        		ssb_appname: this.appname,
+        		local: true 
+        };
+        
+        this.config = Config(this.appname, settings);
+        
+        console.log("ssb config " + JSON.stringify(this.config));        
     }
 
     async init(): Promise<String> {
-    	var keys = ssbKeys.loadOrCreateSync(this.home + "/." + this.appname + "/secret")
-    
+    	if(this.runserver) {
+	    	var keys = ssbKeys.loadOrCreateSync(this.home + "/." + this.appname + "/secret")
+	  
+	        var server = Server(this.config);
+	        var manifest = server.getManifest()
+			fs.writeFileSync(
+					path.join(this.config.path, 'manifest.json'), 
+					JSON.stringify(manifest)
+			)
+	
+			await this.delay(2000);
+    	}
+    	
     	return new Promise<String>((resolve, reject) => {
 	        ssbClient(keys, (err:string, sbot: any) => {
 				if(err) {
@@ -34,6 +62,10 @@ export default class CTSsb {
 		        resolve(err);
 	         });
 	     });
+    }
+
+    async delay(ms: number) {
+    	return new Promise( resolve => setTimeout(resolve, ms) );
     }
     
     public getMessagesByType(type: string, callback: Function) {
