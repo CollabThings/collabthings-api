@@ -36,23 +36,60 @@ export default class CTSsb {
 	     });
     }
     
-    public getMessagesByType(type: string, callback: Function) {
+    public getAuthorMessagesByType(author: string, stype: string, callback: Function) {
 		pull(
-		    this.sbot.messagesByType(type),
+		    this.sbot.createUserStream({ id: author }),
 		    pull.collect(function(err: string, msgs: []) {
 		    	if(err) {
+		    	    console.log("ERROR " + JSON.stringify(err));
 		    		callback(err, "");
 		    	} else {
 					for(var i in msgs) {
 						var msg: string = JSON.stringify(msgs[i]);
-			        	//console.log(msg);
-			        	callback(err, msg);
+					    var omsg:any = msgs[i]; 
+					    
+					    var msgtype:string = omsg.value.content.type;
+					
+			        	if(msgtype == stype) {
+			        	    callback(err, msg);
+			        	} else {
+			        	   // console.log("NOOOO!!!! message type not wanted " + msgtype);
+			        	   // console.log(msg);
+			        	}
 			        }
 			    }
 		    }));
     }
+
+    public getMessagesByType(stype: string, callback: Function) {
+        pull(
+            this.sbot.messagesByType(stype),
+            pull.collect(function(err: string, msgs: []) {
+                if(err) {
+                    console.log("ERROR " + JSON.stringify(err));
+                    callback(err, "");
+                } else {
+                    for(var i in msgs) {
+                        var msg: string = JSON.stringify(msgs[i]);
+                        var omsg:any = msgs[i]; 
+                        
+                        if(omsg.value.content.type == stype) {
+                            callback(err, msg);
+                        }
+                    }
+                }
+            }));
+    }
+
+    public createAuthorStream(author: string, type: string, callback: Function) {
+        this.getAuthorMessagesByType(author, "collabthings-" + type, callback);
+    }
     
-    public createFeedStream(type: string, callback: Function) {
+    public createFeedStreamByType(type: string, callback: Function) {
+        this.getMessagesByType(type, callback);
+    };
+    
+    public createFeedStreamByCTType(type: string, callback: Function) {
     	this.getMessagesByType("collabthings-" + type, callback);
     }
 

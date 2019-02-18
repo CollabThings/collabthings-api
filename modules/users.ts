@@ -11,11 +11,16 @@ import { CTApps, CTAppInfo } from './apps';
 export class UsersApi {
     ssb: CTSsb;
     users: { [key: string]: User } = {};
-
-    constructor( nssb: CTSsb ) {
+    listeners: Function[] = [];
+    
+    constructor(nssb: CTSsb ) {
         this.ssb = nssb;
     }
 
+    addListener(f:Function) {
+        this.listeners.push(f);
+    }
+    
     getAppInfo(): CTAppInfo {
         var self = this;
         var info: CTAppInfo = new CTAppInfo();
@@ -75,7 +80,7 @@ export class UsersApi {
     }
 
     async initContacts() {
-        await this.ssb.getMessagesByType( "contact", ( err: string, smsg: string ) => {
+        await this.ssb.createFeedStreamByType( "contact", ( err: string, smsg: string ) => {
             var msg: any = JSON.parse( smsg );
 
             if ( !msg.value.content ) {
@@ -90,9 +95,9 @@ export class UsersApi {
             }
         } );
     }
-
+    
     async initAbout() {
-        await this.ssb.getMessagesByType( "about", ( err: string, smsg: string ) => {
+        await this.ssb.createFeedStreamByType( "about", ( err: string, smsg: string ) => {
             var msg: any = JSON.parse( smsg );
 
             if ( !msg.value.content ) {
@@ -127,11 +132,12 @@ export class UsersApi {
         return this.users[author];
     }
 
-    handleContact( author: string, content: any ) {
+    async handleContact( author: string, content: any ) {
         if ( author == this.ssb.getUserID() ) {
             console.log( "contact msg:" + JSON.stringify( content ) );
             if ( content.following == true ) {
                 this.getUser( content.contact ).following = true;
+                this.fireFollowed(content.contact);
             } else if ( content.following == false ) {
                 this.getUser( content.contact ).following = false;
             } else {
@@ -140,6 +146,13 @@ export class UsersApi {
         }
     }
 
+    fireFollowed(contact:string) {
+        for(var i in this.listeners) {
+            var l:Function = this.listeners[i];
+            l(contact, true);
+        }
+    }
+    
     handleAbout( author: string, content: any ) {
         if ( !content ) {
             return;
@@ -170,4 +183,9 @@ class User {
     name: string;
     description: string;
     following: boolean;
+}
+
+class CTContactListener {
+    following: Function;
+    unfollowing: Function;
 }

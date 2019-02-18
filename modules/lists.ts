@@ -52,28 +52,39 @@ export class ListsApi {
     		});
     	};
     	
+    	info.following = (author:string, following:boolean) => {
+    	    this.ssb.createAuthorStream(author, "list", (err: string, smsg: string) => {
+                this.handleListMessage(err, smsg);
+    	    });
+    	};
+    	
     	return info;
     }
     
     async init() {
     	console.log("******************** LISTS INIT");
-    	await this.ssb.createFeedStream("list", (err: string, smsg: string) => {
-    		var msg: any = JSON.parse(smsg);
-    		
-    		if(!msg.value.content) {
-    			console.log("no content");
-    			return;
-    		}
-    		
-    		var values: any = msg.value.content.values;
-    		if(values && values.method && values.value && values.listname) {
-    			console.log("list msg:" + JSON.stringify(values));
-    			var author = msg.value.author;
-    			console.log("list msg by " + author);
-    			var list: CTList = this.getOrCreateListWithAuthor(author, values.listname);    			
-    			list.add(values.value);
-    		}
+    	await this.ssb.createFeedStreamByCTType("list", (err: string, smsg: string) => {
+    	    this.handleListMessage(err, smsg);
     	});
+    }
+ 
+    async handleListMessage(err: string, smsg: string) {
+        var msg: any = JSON.parse(smsg);
+    
+        if(!msg.value.content) {
+            console.log("no content");
+            return;
+        }
+        
+        var values: any = msg.value.content.values;
+        if(values && values.method && values.value && values.listname) {
+            console.log("list msg:" + JSON.stringify(values));
+            var author = msg.value.author;
+            console.log("list msg by " + author);
+            var list: CTList = this.getOrCreateListWithAuthor(author, values.listname);             
+            list.add(values.value);
+        }
+
     }
     
     private getOrCreateList(name: string): CTList {

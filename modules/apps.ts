@@ -44,6 +44,15 @@ export class CTApps {
     		}
     	}
     }
+    
+    async following(contact:string, following:boolean) {
+        for(var iapp in this.list) {
+            var app = this.list[iapp];
+            if(app.following) {
+                await app.following(contact, following);
+            }
+        }
+    }
 
 	addApp(app: CTAppInfo) {
 		this.list[app.name] = app;
@@ -62,4 +71,5 @@ export class CTAppInfo {
 	settings: any;
 	static: Function;
 	api: Function;	
+	following: Function;
 }
