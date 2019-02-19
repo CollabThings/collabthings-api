@@ -20,7 +20,7 @@ class CTApi {
     users: UsersApi;
     
 	apps: CTApps;
-	
+
     init(nssb: CTSsb) {
         this.ssb = nssb;
 		this.apps = new CTApps(this);

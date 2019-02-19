@@ -17,13 +17,13 @@
 
 'use strict';
 
-var assert = require('assert');
+var assert = require( 'assert' );
 import CTApp from '../modules/app';
 import CTApi from '../modules/api';
 import CTSsb from '../modules/ssb';
 import { CTMessageContent } from '../modules/common';
 import { Message, TestMessages } from './messages';
-import { ListsApi, CTList } from '../modules/lists';
+import { ListsApi } from '../modules/lists';
 
 var messages = new TestMessages();
 
@@ -32,26 +32,26 @@ export default class ListTests {
     app: CTApp;
     lists: ListsApi;
 
-    constructor(napp: CTApp) {
+    constructor( napp: CTApp ) {
         this.app = napp;
         this.api = napp.getApi();
         this.lists = this.api.getLists();
     }
 
     async run() {
-    	await this.lists.waitIfEmpty("test");
-    	
-		var list: string[] = this.lists.list("test");
-		if(list.length==0) {
-			console.log("list length " + list.length);
-			await this.lists.add("test", "testvalue");
-			list = this.lists.list("test");
-		}
+        await this.lists.waitIfEmpty();
 
-		await this.lists.add("test2", "testvalue2");
-		
-		assert.equal(true, list.length>0);
-				
-        assert.equal("Hello!", this.api.info().hello);
+        var list: { [key: string]: string } = this.lists.list( "test" );
+        if ( Object.keys( list ).length == 0 ) {
+            console.log( "list length 0" );
+            await this.lists.add( "test", "testvalue" );
+            list = this.lists.list( "test" );
+        }
+
+        await this.lists.add( "test2", "testvalue2" );
+
+        assert.equal( true, Object.keys( list ).length > 0 );
+
+        assert.equal( "Hello!", this.api.info().hello );
     }
 }
