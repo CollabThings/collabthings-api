@@ -80,7 +80,13 @@ class CTApi {
     stop() {
     	if(this.expserver) {
         	this.expserver.close();
-        }
+        } 
+    	
+    	if(this.ssb) {
+    	    this.ssb.stop();
+    	}
+    	
+    	return "stop done"
     }
 
     initExp() {
@@ -122,6 +128,11 @@ class CTApi {
         this.exp.get("/info", function(req, res) {
             console.log("\"info\" called");
             res.send(JSON.stringify(self.info()));
+        });
+
+        this.exp.get("/stop", function(req, res) {
+            console.log("\"stop\" called");
+            res.send(JSON.stringify(self.stop()));
         });
 
         this.apps.initApi(this.exp);
