@@ -41,7 +41,7 @@ export default class CTSsb {
 		    this.sbot.createUserStream({ id: author }),
 		    pull.collect(function(err: string, msgs: []) {
 		    	if(err) {
-		    	    console.log("ERROR " + JSON.stringify(err));
+		    	    console.log("ERROR getAuthorMessagesByType author:" + author + " type:\"" + stype + "\" error:" + JSON.stringify(err) + " msgs:" + JSON.stringify(msgs));
 		    		callback(err, "");
 		    	} else {
 					for(var i in msgs) {
@@ -66,7 +66,7 @@ export default class CTSsb {
             this.sbot.messagesByType(stype),
             pull.collect(function(err: string, msgs: []) {
                 if(err) {
-                    console.log("ERROR " + JSON.stringify(err));
+                    console.log("ERROR getMessagesByType type:\"" + stype + "\" error:" + JSON.stringify(err));
                     callback(err, "");
                 } else {
                     for(var i in msgs) {
@@ -101,7 +101,7 @@ export default class CTSsb {
 	        console.log("sending message " + JSON.stringify(content));
 	        this.sbot.publish(JSON.parse(JSON.stringify(content)), function(err: string, msg: string) {
 	        	if(err) {
-	            	console.log("ERROR " + err);
+	            	console.log("ERROR addMessage " + err);
 					reject(err);
 	            } else {
 	            	console.log("messageAdded " + msg);

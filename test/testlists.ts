@@ -48,6 +48,9 @@ export default class ListTests {
             list = this.lists.list( "test" );
         }
 
+        var userlist: { [key: string]: string } = this.lists.list( this.app.getSsb().getUserID() + "/test" );
+        assert.equal(list["test"], userlist["test"]);
+        
         await this.lists.add( "test2", "testvalue2" );
 
         assert.equal( true, Object.keys( list ).length > 0 );
