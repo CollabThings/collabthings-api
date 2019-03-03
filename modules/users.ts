@@ -12,15 +12,15 @@ export class UsersApi {
     ssb: CTSsb;
     users: { [key: string]: User } = {};
     listeners: Function[] = [];
-    
-    constructor(nssb: CTSsb ) {
+
+    constructor( nssb: CTSsb ) {
         this.ssb = nssb;
     }
 
-    addListener(f:Function) {
-        this.listeners.push(f);
+    addListener( f: Function ) {
+        this.listeners.push( f );
     }
-    
+
     getAppInfo(): CTAppInfo {
         var self = this;
         var info: CTAppInfo = new CTAppInfo();
@@ -41,6 +41,10 @@ export class UsersApi {
 
             exp.get( "/user/:userid", function( req, res ) {
                 res.send( JSON.stringify( self.getUser( req.params.userid ) ) );
+            } );
+
+            exp.get( "/users/follow/:userid", function( req, res ) {
+                res.send( JSON.stringify( self.ssb.follow( req.params.userid ) ) );
             } );
 
             exp.get( "/me", function( req, res ) {
@@ -81,6 +85,12 @@ export class UsersApi {
 
     async initContacts() {
         await this.ssb.createFeedStreamByType( "contact", ( err: string, smsg: string ) => {
+            if(err) {
+                console.log("contact err " + err);
+                console.log("contact smsg " + smsg);                
+                return;
+            }
+            
             var msg: any = JSON.parse( smsg );
 
             if ( !msg.value.content ) {
@@ -95,9 +105,14 @@ export class UsersApi {
             }
         } );
     }
-    
+
     async initAbout() {
         await this.ssb.createFeedStreamByType( "about", ( err: string, smsg: string ) => {
+            if(err) {
+                console.log("About error " + err);
+                return;
+            }
+            
             var msg: any = JSON.parse( smsg );
 
             if ( !msg.value.content ) {
@@ -137,7 +152,7 @@ export class UsersApi {
             console.log( "contact msg:" + JSON.stringify( content ) );
             if ( content.following == true ) {
                 this.getUser( content.contact ).following = true;
-                this.fireFollowed(content.contact);
+                this.fireFollowed( content.contact );
             } else if ( content.following == false ) {
                 this.getUser( content.contact ).following = false;
             } else {
@@ -146,18 +161,18 @@ export class UsersApi {
         }
     }
 
-    fireFollowed(contact:string) {
-        for(var i in this.listeners) {
-            var l:Function = this.listeners[i];
-            l(contact, true);
+    fireFollowed( contact: string ) {
+        for ( var i in this.listeners ) {
+            var l: Function = this.listeners[i];
+            l( contact, true );
         }
     }
-    
+
     handleAbout( author: string, content: any ) {
         if ( !content ) {
             return;
         }
-        
+
         var user: User = this.getUser( author );
 
         if ( content.name ) {

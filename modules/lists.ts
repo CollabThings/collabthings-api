@@ -30,7 +30,7 @@ export class ListsApi {
 
         info.api = (exp: express.Application) => {
             exp.get("/lists", function(req, res) {
-                var bookmarks = self.list("info")
+                var bookmarks = self.list("/info")
                 if (Object.keys(bookmarks).length == 0) {
                     self.add("info", "created at " + new Date());
                 }
@@ -80,10 +80,6 @@ export class ListsApi {
         var list: { [key: string]: string } = this.getOrCreateListWithAuthor(author);
         if (typeof (list['initialized']) == 'undefined') {
             this.lists[author]['initialized'] = "intialized " + new Date();
-            self.ssb.createAuthorStream(author, "list", (err: string, smsg: string) => {
-                self.handleListMessage(err, smsg);
-            });
-
             await this.waitIfEmptyWithAuthor(author);
             console.log("done creating author stream " + author);
         }
