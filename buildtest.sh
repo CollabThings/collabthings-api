@@ -11,7 +11,7 @@ if tsc; then
 	tsc
 	
 	export ssb_appname=ssb-test
-	export HOME=$(pwd)/testenv/001 
+	export HOME=$(pwd)/testenv/users/001 
 	echo HOME ${HOME}
 	npm run test
 else

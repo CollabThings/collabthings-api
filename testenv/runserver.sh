@@ -1,13 +1,15 @@
 #!/bin/bash
 
 number=$1
-home=$(dirname $0)/users/${number}
+home=$(realpath $(dirname $0))/users/${number}
 ssbpath=$home/.ssb-test/
+
+echo using ssbpath ${ssbpath}
 
 mkdir -p $ssbpath
 cp config.template ${ssbpath}/config
 sed -e "s/SSB_PORT_INDEX/${number}/g" -i ${ssbpath}/config
-sed -e "s~SSB_HOME~$(pwd)/${number}~g" -i ${ssbpath}/config
+sed -e "s~SSB_HOME~${home}~g" -i ${ssbpath}/config
 
 netstat -naop | grep LISTEN | grep node
 
@@ -21,6 +23,8 @@ fi
 
 export HOME=$home
 export ssb_appname="ssb-test" 
+
+export
 
 HOME=$home sbot server &
 sleep 2
