@@ -3,7 +3,24 @@ const pull = require( 'pull-stream' );
 import * as fs from 'fs';
 import * as path from 'path'
 var ssbClient = require( 'ssb-client' )
+var ssbServer = require( 'ssb-server' )
 var ssbKeys = require( 'ssb-keys' )
+
+var network = process.env.ssb_appname || "ssb";
+
+var config = require( 'ssb-config/inject' )( network )
+
+ssbServer
+    .use( require( 'ssb-server/plugins/master' ) )
+    .use( require( 'ssb-gossip' ) )
+    .use( require( 'ssb-replicate' ) )
+    .use( require( 'ssb-friends' ) )
+    .use( require( 'ssb-blobs' ) )
+    .use( require( 'ssb-invite' ) )
+    .use( require( 'ssb-query' ) )
+    .use( require( 'ssb-ws' ) )
+    .use( require( 'ssb-ebt' ) )
+    .use( require( 'ssb-ooo' ) )
 
 export default class CTSsb {
     home: string;
@@ -16,24 +33,71 @@ export default class CTSsb {
 
     constructor() {
         this.home = process.env.HOME || "tmp";
-        this.appname = process.env.ssb_appname || "ssb-collabthings"
-        this.ssbpath = this.home + "/." + this.appname;
-        console.log( "home: " + this.home + " ssb_appname:" + this.appname + " ssbpath:" + this.ssbpath );
+        config.appname = network;
+        config.path = this.home + "/." + config.appname;
+        console.log( "home: " + this.home + " ssb_appname:" + config.appname + " ssbpath:" + config.path );
+    }
+
+    startServer() {
+        console.log( "Creating a server with config " + config );
+
+        var server: any = ssbServer( config );
+
+        console.log( "CTSsb server " + server );
+        console.log( "CTSsb Writing manifest" );
+
+        var manifest = server.getManifest()
+        fs.writeFileSync(
+            path.join( config.path, 'manifest.json' ), // ~/.ssb/manifest.json
+            JSON.stringify( manifest )
+        )
+
+        this.delay( 2000 );
+
+        console.log( "CTSsb server started" );
+    }
+
+    launchClient(): Promise<String> {
+        return new Promise<String>(( resolve, reject ) => {
+            try {
+                ssbClient( config.keys, ( err: string, sbot: any ) => {
+                    if ( err ) {
+                        console.log( "ssbClient Error " + err );
+                        reject( err );
+                    } else {
+                        resolve( sbot );
+                    }
+                } );
+            } catch ( e ) {
+                console.log( "ssbClient catched Error " + e );
+                reject( "" + e );
+            }
+        } );
     }
 
     async init(): Promise<String> {
-        var keys = ssbKeys.loadOrCreateSync( this.home + "/." + this.appname + "/secret" );
+        var self: CTSsb = this;
+
+        config.keys = ssbKeys.loadOrCreateSync( config.path + "/secret" );
+
+        console.log( "Connecting..." );
 
         return new Promise<String>(( resolve, reject ) => {
-            ssbClient( keys, ( err: string, sbot: any ) => {
-                if ( err ) {
-                    console.log( "Collabthings ssbClient " + err );
-                    reject( err );
-                }
-
-                this.sbot = sbot;
-                console.log( "sbot client create " + JSON.stringify( sbot ) );
-                resolve( err );
+            self.launchClient().then(( res ) => {
+                console.log( "CTSsb init launchClient success " + res );
+                this.sbot = res;
+                resolve( "SUCCESS" );
+            } ).catch(( e ) => {
+                console.log( "CTSsb init launchClient error " + e );
+                self.startServer();
+                self.launchClient().then(( res2 ) => {
+                    this.sbot = res2;
+                    console.log( "CTSsb Success sbot " + res2 );
+                    resolve( "SUCCESS" );
+                } ).catch(( err2 ) => {
+                    console.log( "CTSsb second error  " + err2 );
+                    reject( err2 );
+                } );
             } );
         } );
     }
@@ -116,6 +180,10 @@ export default class CTSsb {
                 }
             } );
         } );
+    }
+
+    async delay( ms: number ) {
+        return new Promise( resolve => setTimeout( resolve, ms ) );
     }
 
     public getUserID(): string {

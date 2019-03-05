@@ -174,10 +174,10 @@ export class ListsApi {
 
     async waitIfEmptyWithAuthor(author: string) {
         var counter: number = 0;
-        while (counter++ < 50 && (this.isEmpty() || Object.keys(this.lists[author]).length <= 1)) {
+        while (counter++ < 10 && (this.isEmpty() || Object.keys(this.lists[author]).length <= 1)) {
             // TODO this is stupid but I'm not sure how this should be done.
             console.log("lists empty!");
-            await this.delay(400);
+            await this.delay(2000);
         }
     }
 
