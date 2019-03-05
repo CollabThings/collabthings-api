@@ -27,6 +27,8 @@ export class UsersApi {
 
         info.name = "users";
 
+        console.log( "CTApi initializing users app" );
+
         info.api = ( exp: express.Application ) => {
             exp.get( "/" + info.name, function( req, res ) {
                 if ( Object.keys( self.users ).length == 0 ) {
@@ -44,6 +46,7 @@ export class UsersApi {
             } );
 
             exp.get( "/users/follow/:userid", function( req, res ) {
+                console.log( "CTUsers Follow " + req.params.userid );
                 res.send( JSON.stringify( self.ssb.follow( req.params.userid ) ) );
             } );
 
@@ -85,12 +88,12 @@ export class UsersApi {
 
     async initContacts() {
         await this.ssb.createFeedStreamByType( "contact", ( err: string, smsg: string ) => {
-            if(err) {
-                console.log("contact err " + err);
-                console.log("contact smsg " + smsg);                
+            if ( err ) {
+                console.log( "contact err " + err );
+                console.log( "contact smsg " + smsg );
                 return;
             }
-            
+
             var msg: any = JSON.parse( smsg );
 
             if ( !msg.value.content ) {
@@ -108,11 +111,11 @@ export class UsersApi {
 
     async initAbout() {
         await this.ssb.createFeedStreamByType( "about", ( err: string, smsg: string ) => {
-            if(err) {
-                console.log("About error " + err);
+            if ( err ) {
+                console.log( "About error " + err );
                 return;
             }
-            
+
             var msg: any = JSON.parse( smsg );
 
             if ( !msg.value.content ) {
@@ -130,16 +133,18 @@ export class UsersApi {
         } );
     }
 
-    public checkAuthor( author: string ) {
+    public checkAuthor( author: string ): boolean {
         // typical ssb ID?
         if ( author.length < 20 || !author.startsWith( "@" ) || author.indexOf( "=.ed" ) < 10 ) {
             console.log( "user id not accepted " + author );
+            return false;
         } else if ( typeof ( this.users[author] ) == 'undefined' ) {
             console.log( "adding user " + author );
             var user: User = new User();
             this.users[author] = user;
             user.userid = author;
         }
+        return true;
     }
 
     public getUser( author: string ): User {
@@ -150,13 +155,15 @@ export class UsersApi {
     async handleContact( author: string, content: any ) {
         if ( author == this.ssb.getUserID() ) {
             console.log( "contact msg:" + JSON.stringify( content ) );
-            if ( content.following == true ) {
-                this.getUser( content.contact ).following = true;
-                this.fireFollowed( content.contact );
-            } else if ( content.following == false ) {
-                this.getUser( content.contact ).following = false;
-            } else {
-                console.log( "unknown following value" );
+            if ( this.checkAuthor( content.contact ) ) {
+                if ( content.following == true ) {
+                    this.getUser( content.contact ).following = true;
+                    this.fireFollowed( content.contact );
+                } else if ( content.following == false ) {
+                    this.getUser( content.contact ).following = false;
+                } else {
+                    console.log( "unknown following value" );
+                }
             }
         }
     }
