@@ -20,6 +20,8 @@
     "@types/express": "^4.16.0",
     "@types/pluralize": "^0.0.29",
     "express": "^4.16.4",
+    "ipfs": "^0.34.4",
+    "ipfsd-ctl": "^0.42.0",
     "jquery": "^3.3.1",
     "leveldown": "^4.0.2",
     "path": "^0.12.7",

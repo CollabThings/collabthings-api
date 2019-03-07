@@ -78,6 +78,8 @@ export default class CTSsb {
     async init(): Promise<String> {
         var self: CTSsb = this;
 
+        console.log("************** CTSSb init");
+        
         config.keys = ssbKeys.loadOrCreateSync( config.path + "/secret" );
 
         console.log( "Connecting..." );
