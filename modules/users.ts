@@ -83,7 +83,7 @@ export class UsersApi {
 
     async init() {
         await this.initContacts();
-        await this.initAbout();
+        //await this.initAbout();
     }
 
     async initContacts() {
@@ -125,9 +125,7 @@ export class UsersApi {
 
             var content: any = msg.value.content;
             if ( content ) {
-                console.log( "about msg:" + JSON.stringify( content ) );
                 var author = msg.value.author;
-                console.log( "about msg by " + author );
                 this.handleAbout( author, content );
             }
         } );
@@ -139,7 +137,7 @@ export class UsersApi {
             console.log( "user id not accepted " + author );
             return false;
         } else if ( typeof ( this.users[author] ) == 'undefined' ) {
-            console.log( "adding user " + author );
+            console.log( "adding user " + author + " current count:" + Object.keys( this.users ).length);
             var user: User = new User();
             this.users[author] = user;
             user.userid = author;
@@ -155,7 +153,7 @@ export class UsersApi {
     async handleContact( author: string, content: any ) {
         if ( author == this.ssb.getUserID() ) {
             console.log( "contact msg:" + JSON.stringify( content ) );
-            if ( this.checkAuthor( content.contact ) ) {
+            if ( this.users[ content.contact ] ) {
                 if ( content.following == true ) {
                     this.getUser( content.contact ).following = true;
                     this.fireFollowed( content.contact );
@@ -164,6 +162,8 @@ export class UsersApi {
                 } else {
                     console.log( "unknown following value" );
                 }
+            } else {
+                console.log("unknown user");
             }
         }
     }

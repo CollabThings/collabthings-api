@@ -20,13 +20,11 @@ if [ ! -z "${ns}" ]; then
 	kill ${ns}
 fi
 
-
 export HOME=$home
 export ssb_appname="ssb-test" 
 
-export
-
-HOME=$home sbot server &
+export CT_API_PORT=14${number}
+HOME=$home node ../run.js &
 sleep 2
 
 sbot whoami

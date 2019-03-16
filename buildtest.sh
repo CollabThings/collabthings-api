@@ -3,10 +3,12 @@
 echo COLLABTHINGS-API BUILD
 
 if [ ! -d node_modules ]; then
-	npm install
+	pnpm install
 fi
 
 if tsc; then 
+	bash testenv/restart.sh
+	
 	#cp *.json dist/
 	tsc
 	
@@ -14,6 +16,8 @@ if tsc; then
 	export HOME=$(pwd)/testenv/users/001 
 	echo HOME ${HOME}
 	npm run test
+	
+	bash testenv/stop.sh
 else
 	exit 1;
 fi

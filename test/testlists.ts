@@ -41,14 +41,14 @@ export default class ListTests {
     async run() {
         await this.lists.waitIfEmpty();
 
-        var list: { [key: string]: string } = this.lists.list( "test" );
+        var list: { [key: string]: string } = await this.lists.list( "test" );
         if ( Object.keys( list ).length == 0 ) {
             console.log( "list length 0" );
             await this.lists.add( "test", "testvalue" );
-            list = this.lists.list( "test" );
+            list = await this.lists.list( "test" );
         }
 
-        var userlist: { [key: string]: string } = this.lists.list( this.app.getSsb().getUserID() + "/test" );
+        var userlist: { [key: string]: string } = await this.lists.list( this.app.getSsb().getUserID() + "/test" );
         assert.equal(list["test"], userlist["test"]);
         
         await this.lists.add( "test2", "testvalue2" );

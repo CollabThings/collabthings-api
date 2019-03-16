@@ -13,7 +13,7 @@ ctapp.init().then(() => {
     ctapi.start();
 
     console.log( "CTApp created" );
-    ctapi.stop();
+    //ctapi.stop();
 } ).catch(( err: string ) => {
     if ( err ) {
         console.log( "Run creation error " + err );

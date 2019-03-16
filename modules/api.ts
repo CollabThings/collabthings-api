@@ -1,6 +1,5 @@
 import express from 'express';
 import path from 'path';
-import * as serveStatic from 'serve-static';
 import * as bodyParser from 'body-parser';
 import * as CTApp from './app';
 import CTSsb from './ssb';

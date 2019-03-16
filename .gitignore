@@ -69,3 +69,4 @@ testenv/00*
 
 /package-lock.json
 /yarn.lock
+/.settings/

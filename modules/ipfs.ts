@@ -3,6 +3,8 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as https from 'https';
 
+var ipfsClient = require( 'ipfs-http-client' );
+var ipfspath = "software/go-ipfs/ipfs";
 
 const {
     spawn,
@@ -30,13 +32,24 @@ export default class CTIPFS {
         await self.runInitIfNeeded();
 
         return new Promise<String>(( resolve, reject ) => {
-            self.runIpfsLinux( ['daemon'] ).then(( daemon: any ) => {
-                ipfslog( "got daemon " + daemon );
-                self.daemon = daemon;
-                daemon.stdout.on( 'data', ( data: string ) => {
-                    if(data.indexOf("Daemon is ready")>=0) {
-                        resolve();
-                    }
+            self.runIpfsLinux( ['version'] ).then(( daemon: any ) => {
+                ipfslog( "Version ok" );
+                resolve();
+            } ).catch(( err ) => {
+                self.runIpfsLinux( ['daemon'] ).then(( daemon: any ) => {
+                    ipfslog( "got daemon " + daemon );
+                    self.daemon = daemon;
+                    daemon.stdout.on( 'data', ( data: string ) => {
+                        if ( data.indexOf( "Daemon is ready" ) >= 0 ) {
+                            ipfslog( "Testing client" );
+
+                            var ipfs = ipfsClient( 'localhost', '5001', { protocol: 'http' } ) // leaving out the arguments will default to these values
+                            ipfs.cat( "QmYwAPJzv5CZsnA625s3Xf2nemtYgPpHdWEz79ojWnPbdG/readme", ( err: string, file: string ) => {
+                                ipfslog( "cat " + err + " " + file );
+                                resolve();
+                            } );
+                        }
+                    } );
                 } );
             } );
         } );
@@ -51,7 +64,7 @@ export default class CTIPFS {
 
         return new Promise<String>(( resolve, reject ) => {
 
-            var ipfs: any = execFile( "go-ipfs/ipfs", args, ( error: string, stdout: string, stderr: string ) => {
+            var ipfs: any = execFile( ipfspath, args, ( error: string, stdout: string, stderr: string ) => {
                 if ( error ) {
                     ipfslog( "ERROR " + error );
                     reject( error );
@@ -102,19 +115,21 @@ export default class CTIPFS {
         var self: CTIPFS = this;
 
         return new Promise<String>(( resolve, reject ) => {
-            if ( fs.existsSync( "go-ipfs/ipfs" ) ) {
+            if ( fs.existsSync( ipfspath ) ) {
                 ipfslog( "go-ipfs/ipfs exists" );
                 resolve();
             } else {
                 // download
-                const file = fs.createWriteStream( "ipfs.tar.gz" );
+                fs.mkdirSync( "software", { recursive: true } );
+
+                const file = fs.createWriteStream( "software/ipfs.tar.gz" );
                 const request = https.get( "https://dist.ipfs.io/go-ipfs/v0.4.19/go-ipfs_v0.4.19_linux-amd64.tar.gz", function( response: any ) {
                     ipfslog( "downloading ipfs linux-amd64" );
                     response.pipe( file );
                     file.on( 'finish', function() {
                         file.close();  // close() is async, call cb after close completes.
                         ipfslog( "downloading done" );
-                        self.unpackTarGz( "ipfs.tar.gz" ).then(( res: string ) => {
+                        self.unpackTarGz( "software/ipfs.tar.gz" ).then(( res: string ) => {
                             resolve();
                         } );
                     } );
@@ -127,7 +142,7 @@ export default class CTIPFS {
         var self: CTIPFS = this;
 
         return new Promise<string>(( resolve, reject ) => {
-            execFile( "tar", ['zxf', filename], ( error: string, stdout: string, stderr: string ) => {
+            execFile( "tar", ['zxf', filename, '-C', 'software'], ( error: string, stdout: string, stderr: string ) => {
                 if ( error ) {
                     reject( error );
                 }
@@ -140,6 +155,10 @@ export default class CTIPFS {
 
     stop() {
         ipfslog( "Stopping the daemon " + this.daemon );
-        this.daemon.kill( 2 );
+        if ( this.daemon ) {
+            this.daemon.kill( 2 );
+
+        }
+
     }
 }

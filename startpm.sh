@@ -1,9 +1,9 @@
 export PATH=./node_modules/.bin:${PATH}
 
-if [ ! -d node_modules/express ]; then npm install express; fi
-if [ ! -d node_modules/sleep ]; then npm install sleep; fi
-if [ ! -d node_modules/async ]; then npm install async; fi
-if [ ! -d node_modules/pm2 ]; then npm install pm2; fi
+if [ ! -d node_modules/express ]; then pnpm install express; fi
+if [ ! -d node_modules/sleep ]; then pnpm install sleep; fi
+if [ ! -d node_modules/async ]; then pnpm install async; fi
+if [ ! -d node_modules/pm2 ]; then pnpm install pm2; fi
 
 pkill pm2
 
