@@ -21,6 +21,9 @@ ssbServer
     .use( require( 'ssb-gossip' ) )
     .use( require( 'ssb-replicate' ) )
     .use( require( 'ssb-friends' ) )
+    .use( require( 'ssb-backlinks' ) )
+    .use( require( 'ssb-about' ) )
+    .use( require( 'ssb-contacts' ) )    
     .use( require( 'ssb-links' ) )
     .use( require( 'ssb-identities' ) )
     .use( require( 'ssb-blobs' ) )
@@ -121,7 +124,6 @@ export default class CTSsb {
                 if ( self.indexfailedcount > 5 ) {
                     ssblog( "enough waiting..." );
                     ssblog( "publish started messages" );
-                    //self.publish( { type: 'collabthings', started: "" + new Date() } );
                     self.indexfailedcount = 0;
                     resolve();
                 } else {
@@ -175,7 +177,10 @@ export default class CTSsb {
                         ssblog( "sbot test " + this.sbot.test );
 
                         ssblog( "sbot names " + Object.getOwnPropertyNames( this.sbot ) );
-                        ssblog( "sbot test names " + Object.getOwnPropertyNames( this.sbot.test ) );
+                        ssblog( "sbot friends names " + Object.getOwnPropertyNames( this.sbot.friends ) );
+                        ssblog( "sbot about names " + Object.getOwnPropertyNames( this.sbot.about ) );
+                        ssblog( "sbot contacts names " + Object.getOwnPropertyNames( this.sbot.contacts ) );
+                        //ssblog( "sbot test names " + Object.getOwnPropertyNames( this.sbot.test ) );
 
                         ssblog( "CTSsb Success sbot " + res2 );
                         resolve( "SUCCESS" );

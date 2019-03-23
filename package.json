@@ -9,7 +9,6 @@
   "scripts": {
     "test": "node test/tests.js",
     "check-locales": "node scripts/check-locales.js",
-    "postinstall": "pnpm run rebuild",
     "rebuild": "pnpm rebuild",
     "build": "pnpm install; tsc",
     "buildtest": "bash buildtest.sh"
@@ -35,9 +34,12 @@
     "request": "^2.88.0",
     "request-promise": "^4.2.4",
     "serve-static": "^1.13.2",
+    "ssb-about": "^2.0.0",
+    "ssb-backlinks": "^0.7.3",
     "ssb-blobs": "^1.1.13",
     "ssb-client": "^4.7.1",
     "ssb-config": "^3.2.5",
+    "ssb-contacts": "^0.0.2",
     "ssb-ebt": "^5.5.2",
     "ssb-friends": "^4.0.0",
     "ssb-gossip": "^1.0.6",

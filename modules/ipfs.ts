@@ -32,11 +32,12 @@ export default class CTIPFS {
         await self.runInitIfNeeded();
 
         return new Promise<String>(( resolve, reject ) => {
-            self.runIpfsLinux( ['version'] ).then(( daemon: any ) => {
-                ipfslog( "Version ok" );
+            self.runIpfs( ['id'] ).then(( daemon: any ) => {
+                ipfslog( "id ok" );
                 resolve();
             } ).catch(( err ) => {
-                self.runIpfsLinux( ['daemon'] ).then(( daemon: any ) => {
+                ipfslog("error. Launching daemon.");
+                self.runIpfs( ['daemon'], true ).then(( daemon: any ) => {
                     ipfslog( "got daemon " + daemon );
                     self.daemon = daemon;
                     daemon.stdout.on( 'data', ( data: string ) => {
@@ -59,7 +60,11 @@ export default class CTIPFS {
         return new Promise( resolve => setTimeout( resolve, ms ) );
     }
 
-    async runIpfsLinux( args: string[] ) {
+    async runIpfs( args: string[], quickresolve?: boolean ) {
+        await this.runIpfsLinux(args, quickresolve);
+    }
+    
+    async runIpfsLinux( args: string[], quickresolve?: boolean ) {
         ipfslog( "Running " + args[0] );
 
         return new Promise<String>(( resolve, reject ) => {
@@ -68,9 +73,15 @@ export default class CTIPFS {
                 if ( error ) {
                     ipfslog( "ERROR " + error );
                     reject( error );
+                } else {
+                    ipfslog( args[0] + " process done" );
+                    resolve(ipfs);
                 }
-                ipfslog( args[0] + " process done" );
             } );
+
+            if(quickresolve) {
+                resolve(ipfs);
+            }
 
             ipfs.stdout.on( 'data', ( data: string ) => {
                 ipfslog( args[0] + " : " + data );
@@ -83,8 +94,6 @@ export default class CTIPFS {
             ipfs.stdout.on( 'close', ( data: string ) => {
                 ipfslog( args[0] + " : CLOSE " + data );
             } );
-
-            resolve( ipfs );
         } );
     }
 

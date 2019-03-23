@@ -10,12 +10,12 @@ if tsc; then
 	bash testenv/restart.sh
 	
 	#cp *.json dist/
-	tsc
+	#tsc
 	
 	export ssb_appname=ssb-test
 	export HOME=$(pwd)/testenv/users/001 
 	echo HOME ${HOME}
-	npm run test
+	pnpm run test
 	
 	bash testenv/stop.sh
 else

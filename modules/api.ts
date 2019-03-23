@@ -64,6 +64,10 @@ class CTApi {
         return this.lists;
     }
 
+    getUsers(): UsersApi {
+        return this.users;
+    }
+
     info() {
         var info = new CTInfo();
         info.hello = "Hello!";

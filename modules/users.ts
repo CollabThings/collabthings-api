@@ -1,4 +1,4 @@
-const pull = require( 'pull-stream' );
+const pull = require('pull-stream');
 import * as fs from 'fs';
 import * as path from 'path'
 
@@ -13,12 +13,12 @@ export class UsersApi {
     users: { [key: string]: User } = {};
     listeners: Function[] = [];
 
-    constructor( nssb: CTSsb ) {
+    constructor(nssb: CTSsb) {
         this.ssb = nssb;
     }
 
-    addListener( f: Function ) {
-        this.listeners.push( f );
+    addListener(f: Function) {
+        this.listeners.push(f);
     }
 
     getAppInfo(): CTAppInfo {
@@ -27,34 +27,43 @@ export class UsersApi {
 
         info.name = "users";
 
-        console.log( "CTApi initializing users app" );
+        console.log("CTApi initializing users app");
 
-        info.api = ( exp: express.Application ) => {
-            exp.get( "/" + info.name, function( req, res ) {
-                if ( Object.keys( self.users ).length == 0 ) {
-                    console.log( "Users list empty. Responding later." );
+        info.api = (exp: express.Application) => {
+            exp.get("/" + info.name, function(req, res) {
+                if (Object.keys(self.users).length == 0) {
+                    console.log("Users list empty. Responding later.");
                     setTimeout(() => {
-                        res.send( JSON.stringify( self.getFollowing() ) );
-                    }, 2000 );
+                        self.getFollowing().then((users) => {
+                            res.send(JSON.stringify(users));
+                        });
+                    }, 2000);
                 } else {
-                    res.send( JSON.stringify( self.getFollowing() ) );
+                    self.getFollowing().then((users) => {
+                        res.send(JSON.stringify(users));
+                    });
                 }
-            } );
+            });
 
-            exp.get( "/user/:userid", function( req, res ) {
-                res.send( JSON.stringify( self.getUser( req.params.userid ) ) );
-            } );
+            exp.get("/user/:userid", function(req, res) {
+                res.send(JSON.stringify(self.getUser(req.params.userid)));
+            });
 
-            exp.get( "/users/follow/:userid", function( req, res ) {
-                console.log( "CTUsers Follow " + req.params.userid );
-                res.send( JSON.stringify( self.ssb.follow( req.params.userid ) ) );
-            } );
+            exp.get("/users/follow/:userid", function(req, res) {
+                console.log("CTUsers Follow " + req.params.userid);
+                res.send(JSON.stringify(self.ssb.follow(req.params.userid)));
+            });
 
-            exp.get( "/me", function( req, res ) {
-                res.send( JSON.stringify( self.getInfo() ) );
-            } );
+            exp.get("/me", function(req, res) {
+                res.send(JSON.stringify(self.getInfo()));
+            });
         };
 
+        // to update about -info of users
+        setTimeout(() => {
+            this.getFollowing();
+        }, 1000);
+        
         return info;
     }
 
@@ -66,78 +75,64 @@ export class UsersApi {
         return selfinfo;
     }
 
-    getFollowing(): any[] {
-        var list: any[] = [];
+    async getFollowing() {
 
-        var count: number = 0;
-        for ( var i in this.users ) {
-            var key = i;
-            var user: User = this.users[key];
-            if ( user.following ) {
-                list[count++] = user;
-            }
-        }
+        return new Promise((resolve, reject) => {
+            var userid: string = this.ssb.getUserID();
 
-        return list;
+            this.ssb.getSbot().contacts.get((err: string, contacts: any) => {
+                console.log("ssb contacts count:" + Object.keys(contacts).length);
+                console.log("ssb contacts count:" + JSON.stringify(contacts[this.ssb.getUserID()]));
+
+                var following: { [key: string]: any } = contacts[userid]['following'];
+
+                for (var f in following) {
+                    this.updateAbout(f);
+                }
+
+                console.log("resolving following " + JSON.stringify(this.users));
+                
+                resolve(this.users);
+            });
+        });
     }
 
+    updateAbout(userid: string) {
+        var user: User = this.getUser(userid);
+        this.ssb.getSbot().about.latestValue({ key: 'name', dest: userid }, (err: string, about: any) => {
+            console.log("about userid:" + userid + " " + JSON.stringify(about));
+            user.name = about;
+        });
+        this.ssb.getSbot().about.latestValue({ key: 'description', dest: userid }, (err: string, about: any) => {
+            console.log("about userid:" + userid + " " + JSON.stringify(about));
+            user.description = about;
+        });
+    }
+    
     async init() {
-        await this.initContacts();
-        //await this.initAbout();
+        // nothing to do
     }
 
-    async initContacts() {
-        await this.ssb.createFeedStreamByType( "contact", ( err: string, smsg: string ) => {
-            if ( err ) {
-                console.log( "contact err " + err );
-                console.log( "contact smsg " + smsg );
-                return;
-            }
-
-            var msg: any = JSON.parse( smsg );
-
-            if ( !msg.value.content ) {
-                console.log( "no content" );
-                return;
-            }
-
-            var content: any = msg.value.content;
-            if ( content ) {
-                var author = msg.value.author;
-                this.handleContact( author, content );
-            }
-        } );
+    async waitIfEmpty() {
+        var counter: number = 0;
+        while (counter++ < 1 && this.isEmpty()) {
+            // TODO this is stupid but I'm not sure how this should be done.
+            console.log("users empty!");
+            await this.delay(2000);
+        }
     }
 
-    async initAbout() {
-        await this.ssb.createFeedStreamByType( "about", ( err: string, smsg: string ) => {
-            if ( err ) {
-                console.log( "About error " + err );
-                return;
-            }
-
-            var msg: any = JSON.parse( smsg );
-
-            if ( !msg.value.content ) {
-                console.log( "no content" );
-                return;
-            }
-
-            var content: any = msg.value.content;
-            if ( content ) {
-                var author = msg.value.author;
-                this.handleAbout( author, content );
-            }
-        } );
+    private isEmpty(): Boolean {
+        return Object.keys(this.users).length == 0;
     }
 
-    public checkAuthor( author: string ): boolean {
+    public checkAuthor(author: string): boolean {
         // typical ssb ID?
-        if ( author.length < 20 || !author.startsWith( "@" ) || author.indexOf( "=.ed" ) < 10 ) {
-            console.log( "user id not accepted " + author );
+        if (author.length < 20 || !author.startsWith("@") || author.indexOf("=.ed") < 10) {
+            console.log("user id not accepted " + author);
             return false;
-        } else if ( typeof ( this.users[author] ) == 'undefined' ) {
-            console.log( "adding user " + author + " current count:" + Object.keys( this.users ).length);
+        } else if (typeof (this.users[author]) == 'undefined') {
+            console.log("adding user " + author + " current count:" + Object.keys(this.users).length);
             var user: User = new User();
             this.users[author] = user;
             user.userid = author;
@@ -145,22 +140,22 @@ export class UsersApi {
         return true;
     }
 
-    public getUser( author: string ): User {
-        this.checkAuthor( author );
+    public getUser(author: string): User {
+        this.checkAuthor(author);
         return this.users[author];
     }
 
-    async handleContact( author: string, content: any ) {
-        if ( author == this.ssb.getUserID() ) {
-            console.log( "contact msg:" + JSON.stringify( content ) );
-            if ( this.users[ content.contact ] ) {
-                if ( content.following == true ) {
-                    this.getUser( content.contact ).following = true;
-                    this.fireFollowed( content.contact );
-                } else if ( content.following == false ) {
-                    this.getUser( content.contact ).following = false;
+    async handleContact(author: string, content: any) {
+        if (author == this.ssb.getUserID()) {
+            console.log("contact msg:" + JSON.stringify(content));
+            if (this.users[content.contact]) {
+                if (content.following == true) {
+                    this.getUser(content.contact).following = true;
+                    this.fireFollowed(content.contact);
+                } else if (content.following == false) {
+                    this.getUser(content.contact).following = false;
                 } else {
-                    console.log( "unknown following value" );
+                    console.log("unknown following value");
                 }
             } else {
                 console.log("unknown user");
@@ -168,33 +163,15 @@ export class UsersApi {
         }
     }
 
-    fireFollowed( contact: string ) {
-        for ( var i in this.listeners ) {
+    fireFollowed(contact: string) {
+        for (var i in this.listeners) {
             var l: Function = this.listeners[i];
-            l( contact, true );
+            l(contact, true);
         }
     }
 
-    handleAbout( author: string, content: any ) {
-        if ( !content ) {
-            return;
-        }
-
-        var user: User = this.getUser( author );
-
-        if ( content.name ) {
-            user.name = content.name;
-        }
-
-        if ( content.description ) {
-            user.description = content.description;
-        }
-
-        console.log( "About handled. user now " + JSON.stringify( user ) );
-    }
-
-    async delay( ms: number ) {
-        return new Promise( resolve => setTimeout( resolve, ms ) );
+    async delay(ms: number) {
+        return new Promise(resolve => setTimeout(resolve, ms));
     }
 
     stop() { }

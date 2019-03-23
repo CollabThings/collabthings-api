@@ -9,3 +9,4 @@ fi
 bash runserver.sh "001" 
 bash runserver.sh "002" 
 
+sleep 1
