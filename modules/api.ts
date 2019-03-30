@@ -70,7 +70,6 @@ class CTApi {
 
     info() {
         var info = new CTInfo();
-        info.hello = "Hello!";
         return info;
     }
 

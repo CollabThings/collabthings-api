@@ -59,8 +59,6 @@ export default class CTSsb {
 
     indexfailedcount: number = 0;
 
-    handled: string[] = [];
-
     constructor() {
         this.home = process.env.HOME || "tmp";
         config.appname = network;
