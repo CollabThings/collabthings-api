@@ -31,6 +31,8 @@ export default class CTIPFS {
         await self.downloadAndUnpackLinux();
         await self.runInitIfNeeded();
 
+        ipfslog("download and init done");
+        
         return new Promise<String>(( resolve, reject ) => {
             self.runIpfs( ['id'] ).then(( daemon: any ) => {
                 ipfslog( "id ok" );
@@ -107,10 +109,7 @@ export default class CTIPFS {
             if ( !fs.existsSync( process.env.HOME + "/.ipfs" ) ) {
                 ipfslog( "Init .ipfs not found" );
                 self.runIpfsLinux( ['init'] ).then(( ipfs: any ) => {
-                    ipfs.stdout.on( 'close', ( data: string ) => {
-                        ipfslog( "Init closed  " + data );
-                        resolve();
-                    } );
+                    resolve();
                 } );
             } else {
                 resolve();
