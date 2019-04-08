@@ -23,7 +23,7 @@ ssbServer
     .use( require( 'ssb-friends' ) )
     .use( require( 'ssb-backlinks' ) )
     .use( require( 'ssb-about' ) )
-    .use( require( 'ssb-contacts' ) )    
+    .use( require( 'ssb-contacts' ) )
     .use( require( 'ssb-links' ) )
     .use( require( 'ssb-identities' ) )
     .use( require( 'ssb-blobs' ) )
@@ -65,6 +65,10 @@ export default class CTSsb {
         config.path = this.home + "/." + config.appname;// + "-collabthigs";
         ssblog( "home: " + this.home + " ssb_appname:" + config.appname + " ssbpath:" + config.path );
         ssblog( "config:" + JSON.stringify( config ) );
+    }
+
+    addPlugin( p: any ) {
+        ssbServer.use(p);
     }
 
     getSbot(): any {
@@ -216,8 +220,8 @@ export default class CTSsb {
     public getMessagesByType( stype: string, callback: Function ) {
         var self: any = this;
 
-        if ( this.sbot.collabthingslist ) {
-            this.sbot.collabthingslist.get(( err: string, state: any ) => {
+        if ( this.sbot.collabthingsList ) {
+            this.sbot.collabthingsList.get(( err: string, state: any ) => {
                 if ( state && state != 'false' ) {
                     ssblog( "sbot test state " + JSON.stringify( state ) );
                 }

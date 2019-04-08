@@ -1,7 +1,7 @@
 var FlumeReduce = require( 'flumeview-reduce' );
 var ref = require( 'ssb-ref' );
 
-exports.name = 'collabthingslist';
+exports.name = 'collabthings-list';
 exports.version = '0.0.1';
 exports.manifest = {
     stream: 'source',

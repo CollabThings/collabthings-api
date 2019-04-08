@@ -38,7 +38,7 @@ export default class BasicTests {
     }
 
     async run() {
-        assert.equal("Hello!", this.api.info().hello);
+        assert.equal("hello", this.api.info().hello);
         var self = this;
         
         var message = messages.getBasic();

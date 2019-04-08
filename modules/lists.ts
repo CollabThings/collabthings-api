@@ -64,8 +64,8 @@ export class ListsApi {
 
     async getLists() {
         return new Promise(( resolve, reject ) => {
-            this.ssb.getSbot().collabthingslist.get(( err: string, state: any ) => {
-                console.log( "LISTS sbot test collabthingslist " + JSON.stringify( state ) );
+            this.ssb.getSbot().collabthingsList.get(( err: string, state: any ) => {
+                console.log( "LISTS sbot test collabthingsList " + JSON.stringify( state ) );
                 resolve( state );
             } );
         } );
