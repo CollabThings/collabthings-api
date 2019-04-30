@@ -44,7 +44,5 @@ export default class UsersTests {
         var userlist: {} = await this.users.getFollowing();
         
         assert.equal( true, Object.keys( userlist ).length > 0 );
-
-        assert.equal( "Hello!", this.api.info().hello );
     }
 }

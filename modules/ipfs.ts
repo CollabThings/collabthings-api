@@ -3,6 +3,13 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as https from 'https';
 
+var lockFile = require( 'lockfile' );
+var psList = require( 'ps-list' );
+
+import express from 'express';
+
+import { CTApps, CTAppInfo } from './apps';
+
 var ipfsClient = require( 'ipfs-http-client' );
 var ipfspath = "software/go-ipfs/ipfs";
 
@@ -13,14 +20,39 @@ const {
   } = require( 'child_process' );
 
 function ipfslog( s: string ) {
-    console.log( "CTIPFS : " + s );
+    console.log( "CTIPFS[" + process.env.HOME + "] : " + s );
 }
 
 export default class CTIPFS {
-    daemon: any;
+    processes: { [key: string]: any } = {};
 
     constructor() {
 
+    }
+
+    getAppInfo(): CTAppInfo {
+        var self = this;
+        var info: CTAppInfo = new CTAppInfo();
+
+        info.name = "ipfs";
+
+        info.api = ( exp: express.Application ) => {
+            exp.get( "/ipfs/:path", function( req, res ) {
+                var orgpath: string = req.params.path;
+
+                var ipfs = ipfsClient( 'localhost', '5001', { protocol: 'http' } );
+                ipfs.cat( orgpath, ( err: string, file: string ) => {
+                    if(err) {
+                        ipfslog("ERROR " + err);
+                    }
+                    ipfslog( "cat " + path);
+                    res.send( file );
+                } );
+
+            } );
+        }
+
+        return info;
     }
 
     async init() {
@@ -28,34 +60,66 @@ export default class CTIPFS {
 
         ipfslog( "IPFS init" );
 
-        await self.downloadAndUnpackLinux();
-        await self.runInitIfNeeded();
 
-        ipfslog("download and init done");
-        
-        return new Promise<String>(( resolve, reject ) => {
-            self.runIpfs( ['id'] ).then(( daemon: any ) => {
-                ipfslog( "id ok" );
-                resolve();
-            } ).catch(( err ) => {
-                ipfslog("error. Launching daemon.");
-                self.runIpfs( ['daemon'], true ).then(( daemon: any ) => {
-                    ipfslog( "got daemon " + daemon );
-                    self.daemon = daemon;
-                    daemon.stdout.on( 'data', ( data: string ) => {
-                        if ( data.indexOf( "Daemon is ready" ) >= 0 ) {
-                            ipfslog( "Testing client" );
+        if ( !this.isDaemonRunning() ) {
+            await self.downloadAndUnpackLinux();
+            await self.runInitIfNeeded();
+        }
 
-                            var ipfs = ipfsClient( 'localhost', '5001', { protocol: 'http' } ) // leaving out the arguments will default to these values
-                            ipfs.cat( "QmYwAPJzv5CZsnA625s3Xf2nemtYgPpHdWEz79ojWnPbdG/readme", ( err: string, file: string ) => {
-                                ipfslog( "cat " + err + " " + file );
-                                resolve();
-                            } );
-                        }
+        ipfslog( "download and init done" );
+
+        if ( self.isDaemonRunning() ) {
+            await this.waitAndTest();
+        } else {
+            ipfslog( "error. Launching daemon." );
+            await self.runIpfs( ['daemon'], true );
+
+            await this.waitAndTest();
+        }
+    }
+
+    async waitAndTest() {
+        ipfslog( "Testing client" );
+
+        while ( this.isDaemonRunning() ) {
+            try {
+                await this.runIpfs( ['swarm', 'peers'] );
+                await new Promise<string>(( resolve, reject ) => {
+                    var ipfs = ipfsClient( 'localhost', '5001', { protocol: 'http' } ) // leaving out the arguments will default to these values
+                    ipfs.cat( "QmYwAPJzv5CZsnA625s3Xf2nemtYgPpHdWEz79ojWnPbdG/readme", ( err: string, file: string ) => {
+                        ipfslog( "cat " + err + " " + file );
+                        resolve();
+                    } ).catch(( err: string ) => {
+                        reject( err );
                     } );
                 } );
+
+                ipfslog( "waitAndTest success" );
+                // success. exit the loop
+                break;
+            } catch ( err ) {
+                ipfslog( "waitAndTest " + err );
+                await this.delay( 6000 );
+            }
+        }
+
+        ipfslog( "waiting done" );
+    }
+
+    isDaemonRunning() {
+        var found: any = false;
+
+        psList().then(( data: any ) => {
+            data.forEach(( p: any ) => {
+                if ( p.cmd && p.cmd.toLowerCase().indexOf( "ipfs daemon" ) >= 0 ) {
+                    ipfslog( "found ipfs daemon process " + JSON.stringify( p ) );
+                    found = true;
+                }
             } );
+            //=> [{pid: 3213, name: 'node', cmd: 'node test.js', cpu: '0.1'}, ...] 
         } );
+
+        return found;
     }
 
     async delay( ms: number ) {
@@ -63,39 +127,47 @@ export default class CTIPFS {
     }
 
     async runIpfs( args: string[], quickresolve?: boolean ) {
-        await this.runIpfsLinux(args, quickresolve);
+        return this.runIpfsLinux( args, quickresolve );
     }
-    
+
     async runIpfsLinux( args: string[], quickresolve?: boolean ) {
+        var self: CTIPFS = this;
+
         ipfslog( "Running " + args[0] );
 
-        return new Promise<String>(( resolve, reject ) => {
-
+        return new Promise<any>(( resolve, reject ) => {
             var ipfs: any = execFile( ipfspath, args, ( error: string, stdout: string, stderr: string ) => {
                 if ( error ) {
                     ipfslog( "ERROR " + error );
                     reject( error );
                 } else {
                     ipfslog( args[0] + " process done" );
-                    resolve(ipfs);
+                    resolve( ipfs );
                 }
             } );
 
-            if(quickresolve) {
-                resolve(ipfs);
+            if ( ipfs ) {
+                self.processes[args[0]] = ipfs;
+
+                if ( quickresolve ) {
+                    ipfslog( "quickresolve " + ipfs );
+                    resolve();
+                }
+
+                ipfs.stdout.on( 'data', ( data: string ) => {
+                    ipfslog( args[0] + " : " + data );
+                } );
+
+                ipfs.stdout.on( 'exit', ( data: string ) => {
+                    ipfslog( args[0] + " : EXIT " + data );
+                } );
+
+                ipfs.stdout.on( 'close', ( data: string ) => {
+                    ipfslog( args[0] + " : CLOSE " + data );
+                } );
+            } else {
+                reject( "failed to launch ipfs" );
             }
-
-            ipfs.stdout.on( 'data', ( data: string ) => {
-                ipfslog( args[0] + " : " + data );
-            } );
-
-            ipfs.stdout.on( 'exit', ( data: string ) => {
-                ipfslog( args[0] + " : EXIT " + data );
-            } );
-
-            ipfs.stdout.on( 'close', ( data: string ) => {
-                ipfslog( args[0] + " : CLOSE " + data );
-            } );
         } );
     }
 
@@ -162,11 +234,10 @@ export default class CTIPFS {
     }
 
     stop() {
-        ipfslog( "Stopping the daemon " + this.daemon );
-        if ( this.daemon ) {
-            this.daemon.kill( 2 );
-
+        var daemon = this.processes['daemon'];
+        ipfslog( "Stopping the daemon " + daemon );
+        if ( daemon ) {
+            daemon.kill( 2 );
         }
-
     }
 }

@@ -78,4 +78,3 @@ function listsmap( msg: any ) {
         return lists;
     }
 }
-

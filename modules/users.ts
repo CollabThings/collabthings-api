@@ -71,7 +71,7 @@ export class UsersApi {
         var selfinfo: { [key: string]: string } = {};
 
         selfinfo['userid'] = this.ssb.getUserID();
-        selfinfo['hello'] = "Hello!!!";
+        selfinfo['hello'] = "Users";
         return selfinfo;
     }
 

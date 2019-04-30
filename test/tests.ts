@@ -24,6 +24,7 @@ import CTSsb from '../modules/ssb';
 import BasicTests from './testbasic';
 import ListTests from './testlists';
 import UsersTests from './testusers';
+import IPFSTests from './testipfs';
 
 const request = require('request-promise');
 
@@ -82,6 +83,8 @@ async function runtests() {
         console.log("TESTS: LAUNCHING LISTS");
         await new ListTests(app).run();
         
+        console.log("TESTS: LAUNCHING IPFS");
+	    await new IPFSTests(app).run();
 	    
 	} finally {	
 		app.stop();

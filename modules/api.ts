@@ -36,6 +36,8 @@ class CTApi {
         this.users = new UsersApi( this.ssb );
         this.addApp( this.users.getAppInfo() );
 
+        this.addApp(this.ipfs.getAppInfo());
+        
         this.users.addListener(( contact: string, following: boolean ) => {
             this.apps.following( contact, following );
         } );

@@ -1,4 +1,4 @@
-const pull = require('pull-stream');
+const pull = require( 'pull-stream' );
 import * as fs from 'fs';
 import * as path from 'path'
 
@@ -9,67 +9,69 @@ import CTApi from './api';
 
 export class CTApps {
     api: CTApi;
-	list: { [key: string]: CTAppInfo };
-	
-    constructor(napi: CTApi) {
+    list: { [key: string]: CTAppInfo };
+
+    constructor( napi: CTApi ) {
         this.api = napi;
         this.list = {};
-        
+
         var ctapp = new CTAppInfo();
         ctapp.name = "test";
         ctapp.type = "default";
         ctapp.settings = {
-        	settingstest: "ok?"
+            settingstest: "ok?"
         };
-        
-        this.addApp(ctapp);
-    }
-    
-    async initStatic(exp: express.Application) {
-    	for(var iapp in this.list) {
-    		var app = this.list[iapp];
-    		console.log("initStatic " + iapp + " " + app);
-    		if(app.static) {
-    			app.static(exp);
-    		}
-    	}
+
+        this.addApp( ctapp );
     }
 
-    async initApi(exp: express.Application) {
-    	for(var iapp in this.list) {
-    		var app = this.list[iapp];
-    		console.log("initApi " + iapp + " " + app);
-    		if(app.api) {
-    			app.api(exp);
-    		}
-    	}
-    }
-    
-    async following(contact:string, following:boolean) {
-        for(var iapp in this.list) {
+    async initStatic( exp: express.Application ) {
+        for ( var iapp in this.list ) {
             var app = this.list[iapp];
-            if(app.following) {
-                await app.following(contact, following);
+            console.log( "initStatic " + iapp + " " + app );
+            if ( app.static ) {
+                app.static( exp );
             }
         }
     }
 
-	addApp(app: CTAppInfo) {
-		this.list[app.name] = app;
-	}
-	
-	getList() {
-		return this.list;
-	}
-	
+    async initApi( exp: express.Application ) {
+        for ( var iapp in this.list ) {
+            var app = this.list[iapp];
+            console.log( "initApi " + iapp + " " + app );
+            if ( app.api ) {
+                app.api( exp );
+            }
+        }
+    }
+
+    async following( contact: string, following: boolean ) {
+        for ( var iapp in this.list ) {
+            var app = this.list[iapp];
+            if ( app.following ) {
+                await app.following( contact, following );
+            }
+        }
+    }
+
+    addApp( app: CTAppInfo ) {
+        this.list[app.name] = app;
+    }
+
+    getList() {
+        return this.list;
+    }
+
     stop() { }
 }
 
 export class CTAppInfo {
-	name: string;
-	type: string;
-	settings: any;
-	static: Function;
-	api: Function;	
-	following: Function;
+    name: string;
+    type: string;
+    launch: string;
+    settings: any;
+
+    static: Function;
+    api: Function;
+    following: Function;
 }

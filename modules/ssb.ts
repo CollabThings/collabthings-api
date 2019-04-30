@@ -203,11 +203,11 @@ export default class CTSsb {
     }
 
     public publish( content: any ): Promise<string> {
-        ssblog( "publish " + content );
+        ssblog( "publish " + JSON.stringify(content) );
         return new Promise(( resolve, reject ) => {
             this.sbot.publish( JSON.parse( JSON.stringify( content ) ), function( err: string, msg: string ) {
                 if ( err ) {
-                    ssblog( "ERROR addMessage " + err );
+                    ssblog( "ERROR publish " + err );
                     reject( err );
                 } else {
                     ssblog( "messageAdded " + JSON.stringify( msg ) );

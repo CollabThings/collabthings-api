@@ -5,8 +5,8 @@ export class CTMessageContent {
     public type: string = "defaulttype";
     public module: string = "defaultmodule";
     public text: string;
-    public values:any = {};
-	
+    public values: any = {};
+
     constructor() {
     }
 }
