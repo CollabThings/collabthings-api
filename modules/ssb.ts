@@ -59,6 +59,8 @@ export default class CTSsb {
 
     indexfailedcount: number = 0;
 
+    whoami: any;
+
     constructor() {
         this.home = process.env.HOME || "tmp";
         config.appname = network;
@@ -68,7 +70,7 @@ export default class CTSsb {
     }
 
     addPlugin( p: any ) {
-        ssbServer.use(p);
+        ssbServer.use( p );
     }
 
     getSbot(): any {
@@ -169,6 +171,8 @@ export default class CTSsb {
             self.launchClient().then(( res ) => {
                 ssblog( "CTSsb init launchClient success " + res );
                 this.sbot = res;
+                ssblog( "sbot names " + Object.getOwnPropertyNames( this.sbot ) );
+                self.initUserID();
                 resolve( "SUCCESS" );
             } ).catch(( e ) => {
                 ssblog( "CTSsb init launchClient error " + e );
@@ -176,6 +180,9 @@ export default class CTSsb {
                     ssblog( "launching client again" );
                     self.launchClient().then(( res2 ) => {
                         this.sbot = res2;
+
+                        self.initUserID();
+
                         ssblog( "sbot test " + this.sbot.test );
 
                         ssblog( "sbot names " + Object.getOwnPropertyNames( this.sbot ) );
@@ -197,13 +204,29 @@ export default class CTSsb {
         } );
     }
 
+    public async initUserID() {
+        var self: CTSsb = this;
+
+        return new Promise<String>(( resolve, reject ) => {
+            this.sbot.whoami(( err: any, whoami: any ) => {
+                if ( err ) {
+                    reject();
+                }
+
+                ssblog( "sbot whoami " + JSON.stringify( whoami ) );
+                self.whoami = whoami;
+                resolve();
+            } );
+        } );
+    }
+
     public async follow( author: string ) {
         ssblog( "following " + author );
         await this.publish( { type: 'contact', contact: author, following: true } );
     }
 
     public publish( content: any ): Promise<string> {
-        ssblog( "publish " + JSON.stringify(content) );
+        ssblog( "publish " + JSON.stringify( content ) );
         return new Promise(( resolve, reject ) => {
             this.sbot.publish( JSON.parse( JSON.stringify( content ) ), function( err: string, msg: string ) {
                 if ( err ) {
@@ -262,7 +285,11 @@ export default class CTSsb {
     }
 
     public getUserID(): string {
-        return this.sbot.id;
+        if ( this.whoami ) {
+            return this.whoami.id;
+        } else {
+            return "";
+        }
     }
 
     stop() {
