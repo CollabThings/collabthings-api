@@ -7,39 +7,35 @@ export default class CTApp {
     api: CTApi = new CTApi();
     ipfs: CTIPFS = new CTIPFS();
 
-    async init(): Promise<CTApp> {
+    async init() {
         var self = this;
 
-        return new Promise<CTApp>(( resolve, reject ) => {
-            console.log( "Setting up CTApp" );
+        console.log( "Setting up CTApp" );
 
-            this.ssb.init().then(( res ) => {
-                self.initAfterSsb( resolve, reject );
-            } ).catch(( e ) => {
-                // TODO FIXME For some reason ssb server hasn't started before, it starts on the second time
-                console.log( "CTApp ssb init failed " + e );
-                console.log( "trying again..." );
-                this.ssb.init().then(( res ) => {
-                    self.initAfterSsb( resolve, reject );
-                } ).catch(( e ) => {
-                    console.log( "CTApp init failed " + e );
-                    reject( "CTApp init failed " + e );
-                } );
-            } );
-        } );
+        try {
+            await this.ssb.init();
+            await self.initAfterSsb();
+        } catch( e ) {
+            // TODO FIXME For some reason ssb server hasn't started before, it starts on the second time
+            console.log( "CTApp ssb init failed " + e );
+            console.log( "trying again..." );
+            await this.ssb.init();
+            await self.initAfterSsb();
+        };
     }
 
-    initAfterSsb( resolve: Function, reject: Function ) {
+    async initAfterSsb() {
         console.log( "CTSsb initialized" );
 
-        this.ipfs.init().then(( res ) => {
-            this.api.init( this.ssb, this.ipfs );
-            resolve( this );
-        } ).catch(( e ) => {
+        try {
+          await this.ipfs.init();
+          this.api.init( this.ssb, this.ipfs );
+        } catch(e) {
             console.log( "CTApp IPFS error " + e );
-            reject( e );
-        } );
+            throw e;
+        };
 
+        return this;
     }
 
     getApi(): CTApi {
@@ -50,8 +46,13 @@ export default class CTApp {
         return this.ssb;
     }
 
-    stop() {
-        this.api.stop();
-        this.ssb.stop();
+    getIPFS(): CTIPFS {
+        return this.ipfs;
+    }
+
+    async stop() {
+        await this.api.stop();
+        await this.ssb.stop();
+        await this.ipfs.stop();
     }
 }

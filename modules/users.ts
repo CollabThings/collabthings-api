@@ -75,29 +75,28 @@ export class UsersApi {
         return selfinfo;
     }
 
-    async getFollowing() {
+    async getFollowing(): Promise<{}> {
+        var userid: string = this.ssb.getUserID();
 
-        return new Promise(( resolve, reject ) => {
-            var userid: string = this.ssb.getUserID();
+        try {
+            var contacts = await this.ssb.getSbot().contacts.get();
+            console.log( "ssb contacts count:" + Object.keys( contacts ).length );
+            console.log( "ssb contacts count:" + JSON.stringify( contacts[this.ssb.getUserID()] ) );
 
-            this.ssb.getSbot().contacts.get(( err: string, contacts: any ) => {
-                console.log( "ssb contacts count:" + Object.keys( contacts ).length );
-                console.log( "ssb contacts count:" + JSON.stringify( contacts[this.ssb.getUserID()] ) );
+            var contact: { [key: string]: any } = contacts[userid];
+            if ( contact ) {
+                var following: { [key: string]: any } = contact['following'];
 
-                var contact: { [key: string]: any } = contacts[userid];
-                if ( contact ) {
-                    var following: { [key: string]: any } = contact['following'];
-
-                    for ( var f in following ) {
-                        this.updateAbout( f );
-                    }
-
-                    console.log( "resolving following " + JSON.stringify( this.users ) );
+                for ( var f in following ) {
+                    this.updateAbout( f );
                 }
-                
-                resolve( this.users );
-            } );
-        } );
+
+                console.log( "resolving following " + JSON.stringify( this.users ) );
+            }
+        } catch (e) {
+            console.log("getFollowing ERROR " + e);
+        }
+        return this.users;
     }
 
     updateAbout( userid: string ) {

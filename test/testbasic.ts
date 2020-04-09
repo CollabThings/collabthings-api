@@ -24,7 +24,8 @@ import CTSsb from '../modules/ssb';
 import { CTMessageContent } from '../modules/common';
 import { Message, TestMessages } from './messages';
 
-const request = require('request-promise');
+const bent = require('bent')
+const getJSON = bent('json')
 
 var messages = new TestMessages();
 
@@ -52,12 +53,7 @@ export default class BasicTests {
         });
         
         console.log("basictest get users");
-        await request.get("http://localhost:14881/me", function(err:any, response:any, body:any) {
-        	assert.ifError(err);
-        	console.log("basictest users response " + body);
-        	var users = JSON.parse(body);
-        	assert.equal(self.app.getSsb().getUserID(), users.userid);
-        });
-        
+        var users = await getJSON("http://localhost:14881/me")
+    	assert.equal(self.app.getSsb().getUserID(), users.userid);        
     }
 }

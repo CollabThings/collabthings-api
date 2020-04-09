@@ -1,44 +1,33 @@
 #!/bin/bash
 
 number=$1
-home=$(realpath $(dirname $0))/users/${number}
-ssbpath=$home/.ssb-test/
+contname=ssb$1
 
-echo using ssbpath ${ssbpath}
+csbot () {
+    echo docker-compose exec ${contname} ssb-server $*
+    docker-compose exec ${contname} ssb-server $*
+}
 
-mkdir -p $ssbpath
-cp config.template ${ssbpath}/config
-sed -e "s/SSB_PORT_INDEX/${number}/g" -i ${ssbpath}/config
-sed -e "s~SSB_HOME~${home}~g" -i ${ssbpath}/config
-
-netstat -naop | grep LISTEN | grep node
-
-echo NETSTAT "netstat -naop | grep LISTEN | grep 10${number} | tr -s ' ' | cut -d' ' -f7 | cut -d'/' -f1"
-ns=$(netstat -naop | grep LISTEN | grep "10${number}" | tr -s ' ' | cut -d' ' -f7 | cut -d'/' -f1)
-if [ ! -z "${ns}" ]; then
-	echo Killing $ns
-	kill ${ns}
-fi
+echo using contname ${contname}
 
 export HOME=$home
-export ssb_appname="ssb-test" 
+export ssb_appname="ct-test" 
 
-export CT_API_PORT=14${number}
-HOME=$home node ../run.js &
-sleep 2
+csbot whoami
+csbot getAddress
+csbot status
 
-sbot whoami
-sbot getAddress
-sbot status
+csbot publish --type post --text "${contname}_says_hello"
+csbot feed
 
 if [ ! "001" = "${number}" ]; then
 	sleep 1
-	sbot gossip.peers
-	#sbot gossip.add "localhost:9001:test"
+	#csbot gossip.peers
 fi
 
-sbot messagesByType "collabthings"
+csbot messagesByType "collabthings"
 #sbot
 
-echo "HOME=$home ssb_appname=ssb-test sbot"
+#csbot status
 
+echo runserver $contname done

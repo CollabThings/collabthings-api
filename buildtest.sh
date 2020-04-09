@@ -6,8 +6,11 @@ if [ ! -d node_modules ]; then
 	pnpm install
 fi
 
+
 if tsc; then 
-	bash testenv/restart.sh
+    docker build . -t ct-api-base
+
+	bash testenv/start.sh
 	
 	#cp *.json dist/
 	#tsc
@@ -16,7 +19,7 @@ if tsc; then
 	export HOME=$(pwd)/testenv/users/001 
 	echo HOME ${HOME}
 	pnpm run test
-	
+	echo tests done. calling stop.
 	bash testenv/stop.sh
 else
 	exit 1;

@@ -1,0 +1,16 @@
+version: '2.0'
+services:
+  ssb001:
+    build: ..
+    volumes:
+    - .:/code
+  ssb002:
+    build: ..
+    volumes:
+    - .:/code
+  ssb003:
+    build: ..
+    volumes:
+    - .:/code
+
+  

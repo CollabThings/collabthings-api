@@ -11,12 +11,12 @@ var network = process.env.ssb_appname || "ssb";
 var config = require( 'ssb-config/inject' )( network )
 
 ssbServer
-    .use( require( 'ssb-server/plugins/master' ) )
-    .use( require( 'ssb-server/plugins/onion' ) )
-    .use( require( 'ssb-server/plugins/unix-socket' ) )
-    .use( require( 'ssb-server/plugins/no-auth' ) )
-    .use( require( 'ssb-server/plugins/plugins' ) )
-    .use( require( 'ssb-server/plugins/local' ) )
+    .use( require( 'ssb-master' ) )
+    .use( require( 'ssb-onion' ) )
+    .use( require( 'ssb-unix-socket' ) )
+    .use( require( 'ssb-no-auth' ) )
+    .use( require( 'ssb-plugins' ) )
+    .use( require( 'ssb-local' ) )
     .use( require( '../plugins/lists' ) )
     .use( require( 'ssb-gossip' ) )
     .use( require( 'ssb-replicate' ) )

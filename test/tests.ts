@@ -26,7 +26,8 @@ import ListTests from './testlists';
 import UsersTests from './testusers';
 import IPFSTests from './testipfs';
 
-const request = require('request-promise');
+const bent = require('bent')
+const getJSON = bent('json')
 
 var config = {};
 
@@ -39,43 +40,39 @@ var usertwo: UserInfo;
 
 async function runtests() {
 	console.log("ASYNC");
-	
-	var app = await new CTApp().init();
+
+    var app = null;
 	try {
-		app.getApi().start();
+        console.log("launching CTApp");
+        app = new CTApp();
+        await app.init();
+	
+    	app.getApi().start();
+        console.log("launching CTApp - done");
 		
 		console.log("TESTS: LAUNCHING BASIC");
 	    var basictests = new BasicTests(app);
 	    await basictests.run();
-		    
-        await request.get("http://localhost:14001/me", function(err:any, response:any, body:any) {
-            console.log("TESTS userone response " + body);
-            userone = JSON.parse(body)
-        });
 
-        await request.get("http://localhost:14002/me", function(err:any, response:any, body:any) {
-            console.log("TESTS usertwo response " + body);
-            usertwo = JSON.parse(body)
-        });
+        console.log("Stopping app")
+        await app.stop();
+        
+        var userone = await getJSON("http://localhost:14001/me");
+        var usertwo = await getJSON("http://localhost:14002/me");
 
-        await request.get("http://localhost:14001/users", function(err:any, response:any, body:any) {
-            console.log("users1 " + JSON.stringify(userone) + " users:" + body);
-        });
-
-        await request.get("http://localhost:14002/users", function(err:any, response:any, body:any) {
-            console.log("users2 " + JSON.stringify(usertwo) + " users:" + body);
-        });
-
+        var users = await getJSON("http://localhost:14001/users");
+        console.log("users1 " + JSON.stringify(userone) + " users:" + users);
+        
+        users = await getJSON("http://localhost:14002/users");
+        console.log("users2 " + JSON.stringify(usertwo) + " users:" + users);
+        
         console.log("TESTS userone " + JSON.stringify(userone));
         console.log("TESTS usertwo " + JSON.stringify(usertwo));
 
-        await request.get("http://localhost:14002/users/follow/" + encodeURIComponent(userone.userid), function(err:any, response:any, body:any) {
-            console.log("followed " + body);
-        });
-
-        await request.get("http://localhost:14001/users/follow/" + encodeURIComponent(usertwo.userid), function(err:any, response:any, body:any) {
-            console.log("followed " + body);
-        });
+        console.log("followed " + 
+        await getJSON("http://localhost:14002/users/follow/" + encodeURIComponent(userone.userid)));
+        console.log("followed " + 
+        await getJSON("http://localhost:14001/users/follow/" + encodeURIComponent(usertwo.userid)));
 
         console.log("TESTS: LAUNCHING USERS");
         await new UsersTests(app).run();
@@ -85,10 +82,13 @@ async function runtests() {
         
         console.log("TESTS: LAUNCHING IPFS");
 	    await new IPFSTests(app).run();
-	    
+	} catch(e) {
+        console.log("END TESTS " + e);
+        if(app) {
+            app.stop();
+        }
 	} finally {	
-		app.stop();
-		console.log("END");
+        console.log("END");
 	}
 
 	console.log("ASYNC END");
@@ -96,4 +96,4 @@ async function runtests() {
 
 runtests();
 
-console.log("TESTS END");
+console.log("TESTS sync END");

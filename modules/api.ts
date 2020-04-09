@@ -88,16 +88,9 @@ class CTApi {
     }
 
     stop() {
+        console.log("stopping API");
         if ( this.expserver ) {
             this.expserver.close();
-        }
-
-        if ( this.ssb ) {
-            this.ssb.stop();
-        }
-
-        if ( this.ipfs ) {
-            this.ipfs.stop();
         }
 
         return "stop done"

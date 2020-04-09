@@ -20,11 +20,9 @@
 var assert = require( 'assert' );
 import CTApp from '../modules/app';
 import CTApi from '../modules/api';
-import CTSsb from '../modules/ssb';
+import CTIPFS from '../modules/ipfs';
 import { CTMessageContent } from '../modules/common';
 import { Message, TestMessages } from './messages';
-
-const request = require('request-promise');
 
 var messages = new TestMessages();
 
@@ -38,8 +36,7 @@ export default class IPFSTests {
     }
 
     async run() {
-        await request.get("http://localhost:14001/ipfs/QmRbr6GPmMaXViCSY6fErfB14WWdCMBESyRzTPdk6VvjDu", function(err:any, response:any, body:any) {
-            console.log("ipfs query " + body);
-        });
+        var data = await this.app.getIPFS().cat("QmRbr6GPmMaXViCSY6fErfB14WWdCMBESyRzTPdk6VvjDu");
+        console.log("ipfs query " + data);
     }
 }

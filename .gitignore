@@ -71,3 +71,4 @@ testenv/00*
 /yarn.lock
 /.settings/
 /pnpm-lock.yaml
+/.externalToolBuilders/
